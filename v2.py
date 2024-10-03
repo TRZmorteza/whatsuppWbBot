@@ -10,8 +10,7 @@ import re
 def paksazi(name):
     """Sanitize filename to avoid invalid characters and limit to 5 characters."""
     return re.sub(r'[<>:"/\\|?*]', '', name).strip()
-
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def save_cookies(driver, filename='cookies.json'):
     try:
         with open(filename, 'w') as file:
@@ -19,9 +18,8 @@ def save_cookies(driver, filename='cookies.json'):
         print(f"Cookies saved to {filename}.")
     except Exception as e:
         print(f"Error saving cookies: {e}")
-
-
-def check_images_in_chat(driver):
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def searchIMG(driver):
     try:
         img_elements = driver.find_elements(By.XPATH, "//div[@role='application']//img")
         valid_img_elements = []
@@ -45,8 +43,7 @@ def check_images_in_chat(driver):
     except Exception as e:
         print(f"An error occurred while checking for images: {e}")
         return None
-
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def find_and_click_buttons(driver):
     try:
         buttons = driver.find_elements(By.XPATH, "//button[.//span[@data-icon='media-download']]")
@@ -61,13 +58,11 @@ def find_and_click_buttons(driver):
             print("No buttons found with media download icon.")
     except Exception as e:
         print(f"An error occurred while finding or clicking buttons: {e}")
-
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def create_directory(path):
     """Create a directory if it does not exist."""
     os.makedirs(path, exist_ok=True)
-
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def create_chat_directory(base_directory, chat_name):
     """Create a directory for the clicked chat under the base directory only if it doesn't already exist."""
     chat_directory = os.path.join(base_directory, paksazi(chat_name))
@@ -80,8 +75,7 @@ def create_chat_directory(base_directory, chat_name):
         print(f"Chat directory already exists: {chat_directory}")
     
     return chat_directory  # Return the path for further use
-
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def save_image_from_base64(base64_str, file_path):
     """Save an image from a base64 string."""
     # Remove the header if present
@@ -93,8 +87,7 @@ def save_image_from_base64(base64_str, file_path):
     # Decode and write to file
     with open(file_path, 'wb') as f:
         f.write(base64.b64decode(base64_str))
-
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def get_blob_image_data(driver, blob_url):
     """Retrieve image data from a blob URL."""
     # Use JavaScript to convert blob URL to base64
@@ -119,8 +112,7 @@ def get_blob_image_data(driver, blob_url):
     time.sleep(2)  # Adjust this based on your needs
     
     return result
-
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def download_images(driver, img_elements, chat_name, base_directory):
     chat_name = paksazi(chat_name)  # Clean chat name
 
@@ -147,8 +139,7 @@ def download_images(driver, img_elements, chat_name, base_directory):
 
         except Exception as e:
             print(f"An error occurred while capturing image: {e}")
-
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def save_text_messages(driver, chat_name, base_directory):
     chat_name = paksazi(chat_name)  # Clean chat name
 
@@ -179,7 +170,7 @@ def save_text_messages(driver, chat_name, base_directory):
     
     except Exception as e:
         print(f"An error occurred while saving text messages: {e}")
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def chayI(chat_name):
     chay=''
     for i in chat_name:
@@ -189,7 +180,7 @@ def chayI(chat_name):
                 else:
                  print()
                  return chay
-
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def session():
     driver = webdriver.Chrome()
     
@@ -218,7 +209,7 @@ def session():
                 find_and_click_buttons(driver)
                 time.sleep(2)  
                 
-                img_elements = check_images_in_chat(driver)
+                img_elements = searchIMG(driver)
                 
                 # Create a directory for this specific chat within the main directory
                 chat_directory = create_chat_directory(main_directory_path, chay)
@@ -233,8 +224,7 @@ def session():
             except Exception as e:
                 print(f"An error occurred while processing chat '{chay}': {e}")
 
-        time.sleep(300)  # Wait 5 minutes before next iteration
-
-
+        time.sleep(100)  # Wait 5 minutes before next iteration
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 if __name__ == "__main__":
     session()
