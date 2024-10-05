@@ -1,41 +1,118 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+import base64
 import os
 import time
-import base64
+import json
+import re
+import requests
 
-def paksazi(chat_name):
-    # Implement your chat name cleaning logic here
-    return chat_name
+def paksazi(name):
+    """Sanitize filename to avoid invalid characters and limit to 5 characters."""
+    return re.sub(r'[<>:"/\\|?*]', '', name).strip()
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def save_cookies(driver, filename='cookies.json'):
+    try:
+        with open(filename, 'w') as file:
+            json.dump(driver.get_cookies(), file)
+        print(f"Cookies saved to {filename}.")
+    except Exception as e:
+        print(f"Error saving cookies: {e}")
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def searchIMG(driver):
+    try:
+        img_elements = driver.find_elements(By.XPATH, "//div[@role='application']//img")
+        valid_img_elements = []
 
-def create_directory(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+        for img in img_elements:
+            # Check if the image is in the header (or any specific area you want to ignore)
+            if "header" in img.get_attribute("class"):
+                print("Ignoring image found in header.")
+                continue  # Skip images in the header
 
-def save_image_from_base64(base64_string, file_path):
-    image_data = base64.b64decode(base64_string.split(',')[1])
-    with open(file_path, 'wb') as file:
-        file.write(image_data)
+            valid_img_elements.append(img)
 
+        if valid_img_elements:
+          
+            print("Images are present in this chat (excluding header images).")
+            return valid_img_elements  
+        else:
+            print("No valid images found in this chat.")
+            return None
+
+    except Exception as e:
+        print(f"An error occurred while checking for images: {e}")
+        return None
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def find_and_click_buttons(driver):
+    try:
+        buttons = driver.find_elements(By.XPATH, "//button[.//span[@data-icon='media-download']]")
+        
+        if buttons:
+            print(f"Found {len(buttons)} buttons with media download icon:")
+            for button in buttons:
+                print("Button found :-)")
+                button.click()
+                time.sleep(1)  
+        else:
+            print("No buttons found with media download icon.")
+    except Exception as e:
+        print(f"An error occurred while finding or clicking buttons: {e}")
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def create_directory(path):
+    """Create a directory if it does not exist."""
+    os.makedirs(path, exist_ok=True)
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def create_chat_directory(base_directory, chat_name):
+    """Create a directory for the clicked chat under the base directory only if it doesn't already exist."""
+    chat_directory = os.path.join(base_directory, paksazi(chat_name))
+    
+    # Check if the directory already exists
+    if not os.path.exists(chat_directory):
+        create_directory(chat_directory)
+        print(f"Chat directory created: {chat_directory}")
+    else:
+        print(f"Chat directory already exists: {chat_directory}")
+    
+    return chat_directory  # Return the path for further use
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def save_image_from_base64(base64_str, file_path):
+    """Save an image from a base64 string."""
+    # Remove the header if present
+    if base64_str.startswith('data:image/png;base64,'):
+        base64_str = base64_str.replace('data:image/png;base64,', '')
+    elif base64_str.startswith('data:image/jpeg;base64,'):
+        base64_str = base64_str.replace('data:image/jpeg;base64,', '')
+
+    # Decode and write to file
+    with open(file_path, 'wb') as f:
+        f.write(base64.b64decode(base64_str))
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def get_blob_image_data(driver, blob_url):
-    # JavaScript to fetch blob data
-    script = """
+    """Retrieve image data from a blob URL."""
+    # Use JavaScript to convert blob URL to base64
+    script = f"""
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', arguments[0], true);
+    xhr.open('GET', '{blob_url}', true);
     xhr.responseType = 'blob';
-    xhr.onload = function() {
+    xhr.onload = function() {{
         var reader = new FileReader();
+        reader.onloadend = function() {{
+            return reader.result;  // This will be a base64 string
+        }};
         reader.readAsDataURL(xhr.response);
-        reader.onload = function() {
-            window.blobData = reader.result;
-        };
-    };
+    }};
     xhr.send();
-    return window.blobData;
     """
-    return driver.execute_script(script, blob_url)
-
+    
+    # Execute script and get result
+    result = driver.execute_script(script)
+    
+    # Wait for result (you may need to implement a better waiting mechanism)
+    time.sleep(2)  # Adjust this based on your needs
+    
+    return result
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 def download_images(driver, img_elements, chat_name, base_directory):
     chat_name = paksazi(chat_name)  # Clean chat name
 
@@ -63,51 +140,107 @@ def download_images(driver, img_elements, chat_name, base_directory):
         except Exception as e:
             print(f"An error occurred while capturing image: {e}")
 
-# Example usage
-chrome_options = Options()
-chrome_options.add_argument('--headless')
-chrome_options.add_argument('--window-size=1920,1080')
-chrome_options.add_experimental_option("prefs", {
-    "download.default_directory": "/path/to/download/directory",
-    "download.prompt_for_download": False,
-    "download.directory_upgrade": True,
-})
+def get_blob_image_data(driver, blob_url):
+    script = """
+    return new Promise((resolve, reject) => {
+        fetch(arguments[0])
+            .then(response => response.blob())
+            .then(blob => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            })
+            .catch(reject);
+    });
+    """#mok kerden respons 
+    return driver.execute_script(script, blob_url)
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def save_text_messages(driver, chat_name, base_directory):
+    chat_name = paksazi(chat_name)  # Clean chat name
 
-driver = webdriver.Chrome(options=chrome_options)
-driver.get("https://example.com")
+    # Create a folder for text messages inside the chat directory
+    messages_folder = os.path.join(base_directory, "Messages")  # All messages will be saved here
+    create_directory(messages_folder)
 
-# Assuming img_elements is a list of image elements
-img_elements = driver.find_elements(By.TAG_NAME, 'img')
-download_images(driver, img_elements, "ChatName", "/path/to/base/directory")
+    try:
+        message_elements = driver.find_elements(By.XPATH, "//div[contains(@class,'message')]//span[@dir='auto']")
+        
+        text_content = []
+        
+        for message in message_elements:
+            text_content.append(message.text)
 
-driver.quit()
-"""
-Sure! Let’s go through the code step by step and highlight the changes made to handle blob URLs.
+        text_file_path = os.path.join(messages_folder, f"{chat_name}_messages.txt")
+        
+        # Check if the text file already exists to avoid overwriting
+        if os.path.exists(text_file_path):
+            print(f"Text file already exists: {text_file_path}. Skipping saving messages.")
+            return
 
-Original Code Explanation
-The original function download_images is designed to download images from a list of image elements (img_elements) and save them to a specified directory. Here’s a breakdown of the original code:
+        with open(text_file_path, 'w', encoding='utf-8') as text_file:
+            for line in text_content:
+                text_file.write(line + '\n')
 
-Function Definition:
-download_images(driver, img_elements, chat_name, base_directory): This function takes a Selenium WebDriver instance, a list of image elements, a chat name, and a base directory as input.
-Clean Chat Name:
-chat_name = paksazi(chat_name): This line cleans the chat name using the paksazi function.
-Create Images Folder:
-images_folder = os.path.join(base_directory, "Images"): This line creates a path for the images folder inside the base directory.
-create_directory(images_folder): This line creates the images folder if it doesn’t already exist.
-Iterate Through Image Elements:
-The function iterates through each image element in img_elements.
-Check If Image Is Visible:
-if img.is_displayed(): This line checks if the image is visible.
-Get Image Source:
-src = img.get_attribute("src"): This line gets the source URL of the image.
-Handle Base64 Encoded Images:
-if src.startswith("data:image"): This line checks if the image source is a Base64 encoded image.
-save_image_from_base64(src, file_path): This line saves the Base64 encoded image to the specified file path.
-Handle Blob URLs:
-elif src.startswith("blob:"): This line checks if the image source is a blob URL.
-blob_data = get_blob_image_data(driver, src): This line gets the blob image data using the get_blob_image_data function.
-save_image_from_base64(blob_data, file_path): This line saves the blob image data to the specified file path.
-Print Image URL:
-print(f"Image URL: {src} (not saved)"): This line prints the image URL if it is not saved.
-**Exception Handling
-"""
+        print(f"Text messages saved to: {text_file_path}")
+    
+    except Exception as e:
+        print(f"An error occurred while saving text messages: {e}")
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def chayI(chat_name):
+    chay=''
+    for i in chat_name:
+                if i!='\\':
+                    print(i,end='')
+                    chay+=i
+                else:
+                 print()
+                 return chay
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+def session():
+    driver = webdriver.Chrome()
+    
+    driver.get("https://web.whatsapp.com")
+    
+    input("Scan the QR code and press Enter after logging in on your phone...")
+    
+    save_cookies(driver)  
+    
+    # Set main directory path at C:\xampp\webdav
+    main_directory_path = r'C:\xampp\webdav'
+    
+    while True:
+        chat_elements = driver.find_elements(By.XPATH, "//div[contains(@role,'listitem')]")
+        
+        for chat in chat_elements:
+            chat_name = (chat.text.replace('/', '_')).replace('\n','\\')  # Clean chat name
+            print("Chat found:", chat_name)
+            chay=chayI(chat_name)
+            
+            print(chay,'after for')
+            try:
+                chat.click()
+                time.sleep(2)  
+                
+                find_and_click_buttons(driver)
+                time.sleep(2)  
+                
+                img_elements = searchIMG(driver)
+                
+                # Create a directory for this specific chat within the main directory
+                chat_directory = create_chat_directory(main_directory_path, chay)
+
+                if img_elements and main_directory_path:  # Ensure main directory path is valid
+                    download_images(driver, img_elements, chay, chat_directory)  
+                    save_text_messages(driver, chay, chat_directory)  
+                
+                else:
+                    save_text_messages(driver, chat_name, chat_directory)  
+
+            except Exception as e:
+                print(f"An error occurred while processing chat '{chay}': {e}")
+
+        time.sleep(100)  # Wait 5 minutes before next iteration
+#=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+if __name__ == "__main__":
+    session()
