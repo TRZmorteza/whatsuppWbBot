@@ -44,7 +44,7 @@ def searchIMG(driver):
         print(f"An error occurred while checking for images: {e}")
         return None
 #=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-def find_and_click_buttons(driver):
+def find_buttons(driver):
     try:
         buttons = driver.find_elements(By.XPATH, "//button[.//span[@data-icon='media-download']]")
         
@@ -63,7 +63,7 @@ def create_directory(path):
     """Create a directory if it does not exist."""
     os.makedirs(path, exist_ok=True)
 #=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-def create_chat_directory(base_directory, chat_name):
+def create_directory(base_directory, chat_name):
     """Create a directory for the clicked chat under the base directory only if it doesn't already exist."""
     chat_directory = os.path.join(base_directory, paksazi(chat_name))
     
@@ -84,7 +84,6 @@ def save_image_from_base64(base64_str, file_path):
     elif base64_str.startswith('data:image/jpeg;base64,'):
         base64_str = base64_str.replace('data:image/jpeg;base64,', '')
 
-    # Decode and write to file
     with open(file_path, 'wb') as f:
         f.write(base64.b64decode(base64_str))
 #=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -105,10 +104,8 @@ def get_blob_image_data(driver, blob_url):
     xhr.send();
     """
     
-    # Execute script and get result
     result = driver.execute_script(script)
     
-    # Wait for result (you may need to implement a better waiting mechanism)
     time.sleep(2)  # Adjust this based on your needs
     
     return result
@@ -124,7 +121,7 @@ def download_images(driver, img_elements, chat_name, base_directory):
         try:
             if img.is_displayed():  # Check if the image is visible
                 src = img.get_attribute("src")
-                if src.startswith("data:image"):  # Base64 encoded image
+                if src.startswith("data:image"):  
                     file_path = os.path.join(images_folder, f"{chat_name}_image_{index}.png")
                     save_image_from_base64(src, file_path)
                     print(f"Saved Base64 image to {file_path}")
@@ -143,8 +140,7 @@ def download_images(driver, img_elements, chat_name, base_directory):
 def save_text_messages(driver, chat_name, base_directory):
     chat_name = paksazi(chat_name)  # Clean chat name
 
-    # Create a folder for text messages inside the chat directory
-    messages_folder = os.path.join(base_directory, "Messages")  # All messages will be saved here
+    messages_folder = os.path.join(base_directory, "Messages")  
     create_directory(messages_folder)
 
     try:
@@ -157,7 +153,7 @@ def save_text_messages(driver, chat_name, base_directory):
 
         text_file_path = os.path.join(messages_folder, f"{chat_name}_messages.txt")
         
-        # Check if the text file already exists to avoid overwriting
+        # Check if the text file already exists
         if os.path.exists(text_file_path):
             print(f"Text file already exists: {text_file_path}. Skipping saving messages.")
             return
@@ -191,7 +187,7 @@ def session():
     save_cookies(driver)  
     
     # Set main directory path at C:\xampp\webdav
-    main_directory_path = r'C:\xampp\webdav'
+    main_directory_path = 'C:\\xampp\\webdav'
     
     while True:
         chat_elements = driver.find_elements(By.XPATH, "//div[contains(@role,'listitem')]")
@@ -206,13 +202,12 @@ def session():
                 chat.click()
                 time.sleep(2)  
                 
-                find_and_click_buttons(driver)
+                #find_buttons(driver)
                 time.sleep(2)  
                 
                 img_elements = searchIMG(driver)
                 
-                # Create a directory for this specific chat within the main directory
-                chat_directory = create_chat_directory(main_directory_path, chay)
+                chat_directory = create_directory(main_directory_path, chay)
 
                 if img_elements and main_directory_path:  # Ensure main directory path is valid
                     download_images(driver, img_elements, chay, chat_directory)  
@@ -224,7 +219,7 @@ def session():
             except Exception as e:
                 print(f"An error occurred while processing chat '{chay}': {e}")
 
-        time.sleep(100)  # Wait 5 minutes before next iteration
+        time.sleep(100)  
 #=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 if __name__ == "__main__":
     session()
