@@ -30,14 +30,14 @@ print('all set have nice debuggingyes')
 basePath='C:\\xampp\\webdav'
 input("Scan the QR code and press Enter after logging in on your phone...")
 actions = ActionChains(driver)
+chat_elements = driver.find_elements(By.XPATH, "//div[contains(@role,'listitem')]")
 while True:
-    chat_elements = driver.find_elements(By.XPATH, "//div[contains(@role,'listitem')]")
     for chat in chat_elements:
         chat.click()
         time.sleep(2)  
         chatName=driver.find_element(By.XPATH,xchatName).text
         print(f'looking to {chatName}')
-        
+        fileMover.make(chatName)
         time.sleep(4)  
         img_elements =driver.find_elements(By.XPATH, nonAnXimg)
         img_elemets_secXpath=driver.find_elements(By.XPATH,XimgE)
@@ -50,6 +50,7 @@ while True:
                     if Db:=driver.find_element(By.XPATH,XdButton):
                         Db.click()
                         print('download secses full...')
+                        fileMover.move(chatName,f"{date.today().year}_{date.today().month}_{date.today().day}")
                         print("exit the download manu..")
                     else:
                         print('no download button...')
@@ -58,7 +59,7 @@ while True:
                     print('some ting went wrong in secound xpath metod this is error: ',e)
                 
         
-        elif  img_elements!=[]:
+        elif False and img_elements!=[]:
             print (f"img found in {chatName} secound method")
             for index,img in enumerate(img_elements):
                 try:#try for displayed img    
@@ -71,7 +72,7 @@ while True:
                             time.sleep(3)
                         except Exception as e:
 
-                            print(f'connot click on the img retrying to get back to chat{chatName}..')
+                            print(f'cannot click on the img retrying to get back to chat{chatName}..')
                             actions.send_keys(Keys.ESCAPE).perform()
                             time.sleep(2)
                             actions.send_keys(Keys.ESCAPE).perform()
@@ -82,13 +83,15 @@ while True:
                                 if img.is_displayed():
                                     print('img is visibul again')
                                     img.click()
-                                    driver.find_element(By.XPATH,XdButton).click
+                                    driver.find_element(By.XPATH,XdButton).click()
+                                    fileMover.move(chatName,f"{date.today().year}_{date.today().month}_{date.today().day}")
                                     actions.send_keys(Keys.ESCAPE)
                             except Exception as e:
                                 print('not hope for this')
                                 
                         try:
                             driver.find_element(By.XPATH,XdButton).click()
+                            fileMover.move(chatName,f"{date.today().year}_{date.today().month}_{date.today().day}")
                             time.sleep(3)
                             actions.send_keys(Keys.ESCAPE).perform()
                         except Exception as e:
@@ -103,11 +106,13 @@ while True:
                     try:
                         time.sleep(5)
                         chat.click()
+                        img.click()
                         driver.execute_script("arguments[0].scrollIntoView();", img)
                     except Exception:
                         print('cannot locate the img going to next chat..')
                         break
             else:
                 print(f"no img found in {chatName} !!!!")
-        fileMover.move(chatName,f"{date.today().year}_{date.today().month}_{date.today().day}")
-    driver.close()
+    time.sleep(120*60)
+        
+driver.close()
