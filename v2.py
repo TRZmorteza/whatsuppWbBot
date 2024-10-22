@@ -19,6 +19,8 @@ print('options are looded...')
 
 #XeButton="//span[@data-icon='x-viewer']"# i just use esc keys ;-)
 #nonAnXimg="//div[@role='application']//img[@src]"#temami img haye gorohaye be joz anjomen// may be use full
+gropx='//@span[@data-icon="menu"]'
+gropxAfter='//div[@aria-label="Dowmload"]'
 XdButton="//span[@data-icon='download']"
 xchatName="//div[@id='main']//div[@class='_amie']//span[@dir='auto']"
 nonAnXimg="//div[@role='application']//span[text()='TODAY']//following::img[@src]"#feget aks haye pain tag span emroz deryaft khohed shod
@@ -33,14 +35,19 @@ actions = ActionChains(driver)
 chat_elements = driver.find_elements(By.XPATH, "//div[contains(@role,'listitem')]")
 while True:
     for chat in chat_elements:
-        chat.click()
-        time.sleep(2)  
-        chatName=driver.find_element(By.XPATH,xchatName).text
-        print(f'looking to {chatName}')
-        fileMover.make(chatName)
-        time.sleep(4)  
-        img_elements =driver.find_elements(By.XPATH, nonAnXimg)
-        img_elemets_secXpath=driver.find_elements(By.XPATH,XimgE)
+        try:
+            chat.click()
+            time.sleep(2)  
+            chatName=driver.find_element(By.XPATH,xchatName).text
+            print(f'looking to {chatName}')
+            fileMover.make(chatName)
+            time.sleep(4)  
+            img_elements =driver.find_elements(By.XPATH, nonAnXimg)
+            img_elemets_secXpath=driver.find_elements(By.XPATH,XimgE)
+        except Exception as e:
+            print(f'some thing went wrong in:{chatName}')
+            actions.send_keys(Keys.ESCAPE).perform()
+            
         if img_elemets_secXpath!=[]:
             print (f"img found in {chatName} its first method")
             for img in img_elemets_secXpath:
@@ -50,16 +57,22 @@ while True:
                     if Db:=driver.find_element(By.XPATH,XdButton):
                         Db.click()
                         print('download secses full...')
-                        fileMover.move(chatName,f"{date.today().year}_{date.today().month}_{date.today().day}")
                         print("exit the download manu..")
                     else:
                         print('no download button...')
+                        if DBnext:=driver.find_element(By.XPATH,gropx):
+                            print('its a grop image..')
+                            DBnext.click()
+                            if dbNextN:=driver.find_element(By.XPATH,gropxAfter):
+                                dbNextN.click()
+                                print('downloaded....')
+
                     actions.send_keys(Keys.ESCAPE).perform()
                 except Exception as e:
                     print('some ting went wrong in secound xpath metod this is error: ',e)
                 
         
-        elif False and img_elements!=[]:
+        elif  img_elements!=[]:
             print (f"img found in {chatName} secound method")
             for index,img in enumerate(img_elements):
                 try:#try for displayed img    
@@ -72,7 +85,7 @@ while True:
                             time.sleep(3)
                         except Exception as e:
 
-                            print(f'cannot click on the img retrying to get back to chat{chatName}..')
+                            print(f'connot click on the img retrying to get back to chat{chatName}..')
                             actions.send_keys(Keys.ESCAPE).perform()
                             time.sleep(2)
                             actions.send_keys(Keys.ESCAPE).perform()
@@ -83,15 +96,23 @@ while True:
                                 if img.is_displayed():
                                     print('img is visibul again')
                                     img.click()
-                                    driver.find_element(By.XPATH,XdButton).click()
-                                    fileMover.move(chatName,f"{date.today().year}_{date.today().month}_{date.today().day}")
-                                    actions.send_keys(Keys.ESCAPE)
+                                    if secDb:=driver.find_element(By.XPATH,XdButton):
+                                        print('sec method downloaded button fineded trynig first method none grop..')
+                                        secDb.click()
+                                    elif secDb:= driver.find_element(By.XPATH,gropx):
+                                        print('secound method menu found...')
+                                        secDb.click()
+                                        if secDbsec:= driver.find_element(By.XPATH,gropxAfter):
+                                            print('secound method download button..')
+                                            secDbsec.click()
+                                    actions.send_keys(Keys.ESCAPE).perform()
+                                    actions.send_keys(Keys.ESCAPE).perform()
+
                             except Exception as e:
                                 print('not hope for this')
                                 
                         try:
                             driver.find_element(By.XPATH,XdButton).click()
-                            fileMover.move(chatName,f"{date.today().year}_{date.today().month}_{date.today().day}")
                             time.sleep(3)
                             actions.send_keys(Keys.ESCAPE).perform()
                         except Exception as e:
@@ -106,13 +127,12 @@ while True:
                     try:
                         time.sleep(5)
                         chat.click()
-                        img.click()
                         driver.execute_script("arguments[0].scrollIntoView();", img)
                     except Exception:
                         print('cannot locate the img going to next chat..')
                         break
             else:
                 print(f"no img found in {chatName} !!!!")
-    time.sleep(120*60)
-        
-driver.close()
+        fileMover.move(chatName,f"{date.today().year}_{date.today().month}_{date.today().day}")
+        actions.send_keys(Keys.ESCAPE).perform()
+driver.close() 
