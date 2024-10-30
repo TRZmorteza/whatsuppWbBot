@@ -8,7 +8,6 @@ import fileMover as F
 import xpath as X
 import time
 import os
-import readImg as ri
 
 # Configure Chrome options
 options = Options()
@@ -188,5 +187,4 @@ while True:
       
         F.seek(name,f"{date.today().year}_{date.today().month}_{date.today().day}")
     chats = bot.find_elements(By.XPATH, X.chatPresent)
-    ri.maketextFile()
     #sleep((2*60*60))# do seat sleep

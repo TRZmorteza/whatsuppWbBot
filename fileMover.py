@@ -1,4 +1,3 @@
-import readImg
 import shutil
 import os
 
