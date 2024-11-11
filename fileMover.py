@@ -1,6 +1,7 @@
 import shutil
 import os
 
+import readd as A
 def direct():
     seek('test','t_e_s_t')
 
@@ -35,13 +36,15 @@ def seek(path,date):
                 os.makedirs(destination_dir, exist_ok=True)  
                 for f in (files):  
                     if f[fileTypeS] in ['jpeg', '.jpg','.txt']: 
-                        shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))
+                        shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))           
         else:
             print('noting new here every thing is same and safe calling it a day')
+        A.readd(destination_dir,path)
+        
     else:
         move(path,date)
 
-    
+      
 def move(name,date):
     
     fileTypeS = slice(-4, None)  
@@ -55,17 +58,21 @@ def move(name,date):
              
             if f[fileTypeS] in ['jpeg', '.jpg','.txt']: 
                 shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))
+                           
+
     else:
         print('i already get this img checking the amount....')
-        if seek(name,date):  
+        if seek(name,date)and False:  
             if f[fileTypeS] in ['jpeg', '.jpg','.txt']: 
                 os.makedirs(destination_dir, exist_ok=True)  
                 shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))
+                
         else:
             for f in (files):
                 
                 if f[fileTypeS] in ['jpeg', '.jpg','.txt']: 
                     os.remove(os.path.join(os.getcwd(), f))
             print('deleted the unwanted img...')
+    A.readd(destination_dir,name)
 if __name__=='__main__':
     direct()

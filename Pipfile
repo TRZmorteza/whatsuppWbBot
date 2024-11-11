@@ -4,9 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-selenium = "*"
 requests = "*"
 pillow = "*"
+undetected-chromedriver = "*"
+pytesseract = "*"
+opencv-python = "*"
+numpy = "*"
+webdriver-manager = "*"
+selenium = "*"
 
 [dev-packages]
 

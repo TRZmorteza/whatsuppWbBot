@@ -31,6 +31,7 @@ nextButton="//div [contains(@class,'x78zum5 x6s0dn4 xl56j7k x3x2bpi xwvwv9b xexx
 #===================================================================================================
 downloadMenu="(//span[contains(@class,'') and contains(@data-icon,'menu')])[1]"
 #===================================================================================================
+textBar="((//div[contains(@class,'x1n2onr6 xh8yej3 lexical-rich-text-input')])[2]/div)[1]"
 downloadTab="//li/div[contains(@aria-label,'Download')]"
 lenOfImgs="//p/span[contains(@class,'_alhf _ao3e')]"
 albumImg="//div[@role='application']//span[text()='TODAY']//following::div[contains(@role,'row')]/div[@data-id[contains(.,'album')]]//div[contains(@style,'grid-area: 1 / 1 / 2 / 2;')]"
