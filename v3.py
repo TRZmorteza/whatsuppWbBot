@@ -18,11 +18,11 @@ options.add_experimental_option("prefs", {
     "download.prompt_for_download": False,
     "download.directory_upgrade": True,
 })
-options.add_argument("user-data-dir=C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/seleniumprofile")
+options.add_argument("user-data-dir=C:/Users/MortezaNoei/AppData/Local/Google/Chrome/User Data/selenium_chrome_profile")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
-options.add_argument("--remote-debugging-port=9222")
 
+todayDate=date.today().day
 def extract_number(input):
     words = input.split()
     if int(words[2]): 
@@ -38,11 +38,12 @@ def sleep(s=3):
 def esc():
     act.send_keys(Keys.ESCAPE).perform()
 
-bot =  webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+bot = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 act = ActionChains(bot)
 bot.get('https://web.whatsapp.com')
+
 sleep(10)
-adminName="mortezanoee"
+
 # Find chat elements
 chats = bot.find_elements(By.XPATH, X.chatPresent)
 
@@ -67,17 +68,17 @@ while True:
         chat.click()
         sleep()
         name = bot.find_element(By.XPATH, X.chatName).text
-        if name==adminName:
+        if name=="mortezanoee":
             try:
                 print('admin found')
                 textbBr=bot.find_element(By.XPATH,X.textBar)
                 textbBr.click()
-                sleep()
-                textbBr.send_keys('running....')
+                
+                textbBr.send_keys('running......')
                 textbBr.send_keys(Keys.RETURN)
-                print('massage send to admin..')
-            except Exception as e:
-                print('something went wrong admin',e)
+                continue
+            except:
+                print('something went wrong admin')
         F.make(name)
         print('Looking at:', name)
         if name != 'Whatsapp':
@@ -85,17 +86,44 @@ while True:
                 today = bot.find_element(By.XPATH, X.today)
                 act.scroll_to_element(today).perform()
                 sleep(6)
-                
                 try:
-                    preload = bot.find_element(By.XPATH, X.downloadButtonLoad)
-                    act.scroll_to_element(preload).perform()
-                    sleep(6)
-                    preload = bot.find_element(By.XPATH, X.downloadButtonLoad)
-                    print('looking for download icon')
-                    if preload:
-                        bot.execute_script("arguments[0].click();", preload)
-                        print('click on element')
-                        sleep(10) 
+                    sleep()
+                    gText = bot.find_elements(By.XPATH, X.groptxt)
+                    print(len(gText))
+                    if gText:
+                        filename = f"{name}_fromgGp.txt"
+                        sleep()
+                        
+                        for i in gText:
+                            act.move_to_element(i).perform()
+                            try:
+                                readMores=bot.find_element(By.XPATH,X.readmore)
+                                act.scroll_to_element(readMores).perform()
+
+                                bot.execute_script("arguments[0].click();", readMores)
+                            except:
+                                print('no read more..')
+                            sleep()
+                            text = i.text
+                            with open(filename, 'a', encoding='utf-8') as f:
+                                f.write(text + '\n')
+                            
+                        
+                except Exception as e:
+                    print('no group text or error:', e)
+               
+
+                try:
+                    preloads = bot.find_elements(By.XPATH, X.downloadButtonLoad)
+                    for preload in preloads:
+                        act.scroll_to_element(preload).perform()
+                        sleep(6)
+                        
+                        print('looking for download icon')
+                        if preload:
+                            bot.execute_script("arguments[0].click();", preload)
+                            print('click on element')
+                            sleep(10) 
                 except:
                     print('no download button')
                     print('looking for album')
@@ -142,7 +170,7 @@ while True:
                 print('looking for all single imgs')
                 try:
                     img = bot.find_elements(By.XPATH, X.imgs)
-                    if img:
+                    if img :
                         for i in img:
                             act.scroll_to_element(i).perform()
                             sleep(5)
@@ -157,43 +185,22 @@ while True:
                 except:
                     print('no download button')
                 print('looking for group messages')
-                try:
-                    sleep()
-                    gText = bot.find_elements(By.XPATH, X.groptxt)
-                    if gText:
-                        filename = f"{name}_fromgGp.txt"
-                        sleep()
-                        print(len(gText), ':texts found')
-                        for i in gText:
-                            act.move_to_element(i).perform()
-                            sleep()
-                            text = i.text
-                            with open(filename, 'a', encoding='utf-8') as f:
-                                f.write(text + '\n')
-
-                except Exception as e:
-                    print('no group text or error:', e)
-                print('looking for single messages')
                 
-                try:
-                    sleep()
-                    sText = bot.find_elements(By.XPATH, X.shorttext)
-                    if sText:
-                        print('short text find:', len(sText))
-                        filename = f"{name}_fromgGp_short.txt"
-                        print(len(sText), ':texts found')
-                        for i in sText:
-                            act.move_to_element(i).perform()
-                            sleep()
-                            text = i.text
-                            with open(filename, 'a', encoding='utf-8') as f:
-                                f.write(text + '\n')
-                except Exception as e:
-                    print('no short text or error:', e)
+                F.seek(name, f"{date.today().year}_{date.today().month}_{date.today().day}")
+                
             except: 
                 print('no message found')
+
         else:
             print('skipping WhatsApp')
-    F.seek('thing', f"{date.today().year}_{date.today().month}_{date.today().day}")
+    if todayDate==date.today().day:
+        pass
+    else:
+        todayDate=F.notToDay(date.today().day,f"{date.today().year}-{date.today().month}-{date.today().day}")
+      
+      
+        
+    
+    readd.readd(os.path.join(os.getcwd(),'tempRead'))
     chats = bot.find_elements(By.XPATH, X.chatPresent)
-    sleep(60*60*1)
+    sleep(60*1)

@@ -18,14 +18,13 @@ Gmenu='(//div[contains(@class,"_ajv6 x1y1aw1k x1sxyh0 xwib8y2 xurb0ha")]//span[@
 GmenuD="//div[contains(@class,'x10l6tqk x13vifvy xds687c x1ey2m1c x17qophe')and @tabindex='-1']//following::span[@class]//following::div[contains(@tabindex,'-1')]//ul/li[3]//div[contains(.,'Download')]"
 #===================================================================================================
 #===================================================================================================
+readmore="//div[@role='application']//span[text()='TODAY']//following::div[contains(@class,'read-more-button')]"
 #===================================================================================================
 
 downloadButton="//div//span[contains(@data-icon,'download')]"
-groptxt="//div[@role='application']//span[text()='TODAY']//following::span[contains(@class,'_ao3e selectable-text copyable-text')and @dir='ltr']//span[@class[contains(.,x1lliihq)] and string-length(text()) > 0]"
+groptxt="//div[@role='application']//span[text()='TODAY']//following::div[contains(@class,'copyable-text')]"
 #===================================================================================================
-downloadButtonLoad="(//div[contains(@class,'x6s0dn4 x7o08j2 x78zum5 x5yr21d xl56j7k x17qophe x10l6tqk x13vifvy xh8yej3 x11uqc5h')])[1] //button"
-#===================================================================================================
-shorttext="//div[@role='application']//span[text()='TODAY']//following::div[contains(@class,'message-out focusable-list-item _amjy _amjz _amjw')]//span[contains(@dir,'rtl')]/span[@class and string-length(text()) > 0]"
+downloadButtonLoad="(//div[contains(@class,'x6s0dn4 x7o08j2 x78zum5 x5yr21d xl56j7k x17qophe x10l6tqk x13vifvy xh8yej3 x11uqc5h')]) //button"
 #===================================================================================================
 nextButton="//div [contains(@class,'x78zum5 x6s0dn4 xl56j7k x3x2bpi xwvwv9b xexx8yu x4uap5 x18d9i69 xkhd6sd x1f6kntn xk50ysn x7o08j2 xtvhhri x14yjl9h xudhj91 x18nykt9 xww2gxu xu306ak x12s1jxh xkdsq27 xwwtwea x1gfkgh9 x10l6tqk x8jeoy8 xyw6214 x160vmok x1sr6hwe')]/span "
 #===================================================================================================
