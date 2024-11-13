@@ -368,9 +368,9 @@ def main(path):
             num=0
             for root,dirs,filesPresent in os.walk(os.path.join(os.getcwd(),'debug')):
                  num+=len(filesPresent)   
-            
+            os.makedirs(os.path.join(os.getcwd(),'debug'))
             cv2.imwrite(os.path.join(os.getcwd(),'debug',f'{fileName}_debug({num+1})'),img)
-        img=cv2.bitwise_not(img)
+        
 
 
         img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
