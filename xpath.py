@@ -2,7 +2,7 @@ chatName="//div[@id='main']//div[@class='_amie']//span[@dir='auto']"
 #===================================================================================================
 chatPresent="//div[contains(@role,'listitem')]"
 #===================================================================================================
-imgs="//div[@role='application']//span[text()='TODAY']//following::img[contains(@src, 'blob:https://web.whatsapp.com/') and not(ancestor::div[contains(@data-id, 'album')])]"#imgs all of img with out gifs for persian languge 
+imgs="//div[@role='application']//span[contains(text(),'unread')]//following::img[contains(@src, 'blob:https://web.whatsapp.com/') and not(ancestor::div[contains(@data-id, 'album')])]"#imgs all of img with out gifs for persian languge 
 #===================================================================================================
 singleImgP="//div[@role='button' and @title='دانلود']"
 
@@ -18,11 +18,11 @@ Gmenu='(//div[contains(@class,"_ajv6 x1y1aw1k x1sxyh0 xwib8y2 xurb0ha")]//span[@
 GmenuD="//div[contains(@class,'x10l6tqk x13vifvy xds687c x1ey2m1c x17qophe')and @tabindex='-1']//following::span[@class]//following::div[contains(@tabindex,'-1')]//ul/li[3]//div[contains(.,'Download')]"
 #===================================================================================================
 #===================================================================================================
-readmore="//div[@role='application']//span[text()='TODAY']//following::div[contains(@class,'read-more-button')]"
+readmore="//div[@role='application']//span[contains(text(),'unread')]//following::div[contains(@class,'read-more-button')]"
 #===================================================================================================
 
 downloadButton="//div//span[contains(@data-icon,'download')]"
-groptxt="//div[@role='application']//span[text()='TODAY']//following::div[contains(@class,'copyable-text')]"
+groptxt="//div[@role='application']//span[contains(text(),'unread')]//following::div[contains(@class,'copyable-text')]"
 #===================================================================================================
 downloadButtonLoad="(//div[contains(@class,'x6s0dn4 x7o08j2 x78zum5 x5yr21d xl56j7k x17qophe x10l6tqk x13vifvy xh8yej3 x11uqc5h')]) //button"
 #===================================================================================================
@@ -33,5 +33,6 @@ downloadMenu="(//span[contains(@class,'') and contains(@data-icon,'menu')])[1]"
 textBar="((//div[contains(@class,'x1n2onr6 xh8yej3 lexical-rich-text-input')])[2]/div)[1]"
 downloadTab="//li/div[contains(@aria-label,'Download')]"
 lenOfImgs="//p/span[contains(@class,'_alhf _ao3e')]"
-albumImg="//div[@role='application']//span[text()='TODAY']//following::div[contains(@role,'row')]/div[@data-id[contains(.,'album')]]//div[contains(@style,'grid-area: 1 / 1 / 2 / 2;')]"
-today="//div[@role='application']//span[text()='TODAY']"
+albumImg="//div[@role='application']//span[contains(text(),'unread')]//following::div[contains(@role,'row')]/div[@data-id[contains(.,'album')]]//div[contains(@style,'grid-area: 1 / 1 / 2 / 2;')]"
+today="//div[@role='application']//span[contains(text(),'unread')]"
+unRead="//div[contains(@role,'listitem')]//following::span[contains(@aria-label,'unread message')]"

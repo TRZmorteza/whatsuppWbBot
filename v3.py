@@ -4,13 +4,15 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium import webdriver
 from datetime import date
 import fileMover as F
 import xpath as X
 import time
 import os
-import readd
+
 # Configure Chrome options
 options = webdriver.ChromeOptions()
 options.add_experimental_option("prefs", {
@@ -48,24 +50,32 @@ sleep(10)
 chats = bot.find_elements(By.XPATH, X.chatPresent)
 
 while True:
-    print('loading chats...')
-    for chat in chats:
-        chat.click()
-        try:
-            sleep()
-            today = bot.find_element(By.XPATH, X.today)
-            act.move_to_element(today).perform()
-            sleep(5)
-            act.scroll_to_element(today).perform()
-            sleep()
-        except Exception as e:
-            act.send_keys(Keys.ESCAPE).perform()
-            print('how')
-
-    for chat in chats:
-        act.move_to_element(chat).perform()
+        wait = WebDriverWait(bot,60*60*60*5 , poll_frequency=0.5, ignored_exceptions=[Exception])
+        trget = wait.until(EC.visibility_of_element_located((By.XPATH, X.unRead)))
+        act.scroll_to_element(trget).perform()
+       
         sleep()
-        chat.click()
+        trget.click()
+        sleep(10)
+        try:
+            gText = bot.find_elements(By.XPATH, X.groptxt)
+            print('messages',len(gText))
+        except:
+            print('no message....')
+        try:
+            album = bot.find_elements(By.XPATH, X.albumImg)
+            print('album',len(album))
+        except:
+            print('no album....')
+        try:
+            img = bot.find_elements(By.XPATH, X.imgs)
+            print('img',len(img))
+        except:
+            print('img....')
+
+       
+
+        print('TRYING TO CLICK')
         sleep()
         name = bot.find_element(By.XPATH, X.chatName).text
         if name=="mortezanoee":
@@ -88,13 +98,13 @@ while True:
                 sleep(6)
                 try:
                     sleep()
-                    gText = bot.find_elements(By.XPATH, X.groptxt)
+                    
                     print(len(gText))
                     if gText:
                         filename = f"{name}_fromgGp.txt"
                         sleep()
                         
-                        for i in gText:
+                        for index,i in enumerate(gText):
                             act.move_to_element(i).perform()
                             try:
                                 readMores=bot.find_element(By.XPATH,X.readmore)
@@ -132,7 +142,7 @@ while True:
                     act.scroll_to_element(album[0]).perform()
                     sleep(6)
                     print('album found:', len(album))
-                    album = bot.find_elements(By.XPATH, X.albumImg)
+                    
                     if album:    
                         for i in album:
                             print('trying to click')
@@ -169,7 +179,7 @@ while True:
 
                 print('looking for all single imgs')
                 try:
-                    img = bot.find_elements(By.XPATH, X.imgs)
+                    
                     if img :
                         for i in img:
                             act.scroll_to_element(i).perform()
@@ -186,21 +196,20 @@ while True:
                     print('no download button')
                 print('looking for group messages')
                 
-                F.seek(name, f"{date.today().year}_{date.today().month}_{date.today().day}")
                 
             except: 
                 print('no message found')
 
         else:
             print('skipping WhatsApp')
-    if todayDate==date.today().day:
-        pass
-    else:
-        todayDate=F.notToDay(date.today().day,f"{date.today().year}-{date.today().month}-{date.today().day}")
-      
-      
+        if todayDate==date.today().day:
+            pass
+        else:
+            todayDate=F.notToDay(date.today().day,f"{date.today().year}-{date.today().month}-{date.today().day}")
+            
+        F.seek(name, f"{date.today().year}_{date.today().month}_{date.today().day}")
         
-    
-    readd.readd(os.path.join(os.getcwd(),'tempRead'))
-    chats = bot.find_elements(By.XPATH, X.chatPresent)
-    sleep(60*1)
+        esc()
+        #readd.readd(os.path.join(os.getcwd(),'tempRead'))
+        # chats = bot.find_elements(By.XPATH, X.chatPresent)
+       

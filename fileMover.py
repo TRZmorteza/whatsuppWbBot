@@ -14,13 +14,13 @@ def findDop(path=os.path.join(os.getcwd(),'tempRead')):
             os.remove(os.path.join(path, f))
 
 
-def reN(path,name):
-    files=[f for f in os.listdir(path) if os.path.isfile(os.path.join(path,f))]
+def reN(name,date):
+    files=[f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(),f))]
     for i,f in enumerate(files):
         isNew,fileType=os.path.splitext(f)
         
         if fileType in ['.txt','.jpeg','.jpg']and isNew not in['new','result']:
-            os.rename(f,f"{name}_{i}{fileType}")
+            os.rename(f,f"{name}_{date}{fileType}")
 
 B = r'C:\xampp\htdocs\Watsapp' 
 def make(name):
@@ -32,43 +32,7 @@ def make(name):
         print('folder for this chat already exists....')
 
 def seek(path,date):
-    os.makedirs(os.path.join(os.getcwd(),'tempRead'), exist_ok=True)
-    fileTypeS = slice(-4, None) 
-    files = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-    destination_dir = os.path.join(B, path,date)
-    numberFiles=0
-    findDop(os.getcwd())
-    reN(os.getcwd(),path)
-    for f in (files):
-        _,Ftype=os.path.splitext(f)
-        if Ftype in ['.jpeg', '.jpg','.txt']: 
-            numberFiles+=1#count the amount if files present in download list
-    if os.path.isdir(destination_dir):#check if the path is exists our not
-        presentNumberFiles=0
-        files = [f for f in os.listdir(destination_dir) if os.path.isfile(os.path.join(destination_dir, f))]
-        for f in files:
-            _,Ftype=os.path.splitext(f)
-            if Ftype in ['jpeg', '.jpg','.txt']:  
-                presentNumberFiles+=1#count amount of files presenet in save messages
-        if numberFiles>presentNumberFiles:
-            shutil.rmtree(destination_dir)
-            print('found new imgs old ones are deleted')
-            files = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-            if not os.path.isdir(destination_dir):
-                os.makedirs(destination_dir, exist_ok=True)  
-                for f in (files):
-                    newTxt,Ftype=os.path.splitext(f)  
-                    
-                    if Ftype in ['.jpeg', '.jpg','.txt']and newTxt not in['new','result']: 
-                        
-
-                        shutil.copy(os.path.join(os.getcwd(), f),os.path.join(os.getcwd(),'tempRead', f))
-
-                        shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))           
-        else:
-            print('noting new here every thing is same and safe calling it a day')
-        
-    else:
+        reN(path,date)
         move(path,date)
 
 
@@ -84,16 +48,23 @@ def move(name,date):
     
 
     files = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-
+    secDes=os.path.join(B,'tempRead')
+    print(files)
     destination_dir = os.path.join(B, name,date)
-    if not os.path.isdir(destination_dir):
+    if not os.path.isdir(destination_dir) and not os.path.isdir(secDes):
         os.makedirs(destination_dir, exist_ok=True)  
+        os.makedirs(os.path.join(B,'tempRead'), exist_ok=True)  
         for f in (files):
             _,Ftypes=os.path.splitext(f)       
             if Ftypes in ['.jpeg', '.jpg','.txt']: 
-                shutil.copy(os.path.join(os.getcwd(), f),os.path.join(os.getcwd(),'tempRead', f))
-                shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))
-                           
+                shutil.copy(os.path.join(os.getcwd(), f),os.path.join(B,'tempRead', f))
+                #shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))
+    else:                           
+        for f in (files):
+            _,Ftypes=os.path.splitext(f)       
+            if Ftypes in ['.jpeg', '.jpg','.txt']: 
+                shutil.copy(os.path.join(os.getcwd(), f),os.path.join(B,'tempRead', f))
+                #shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))
 
 
 if __name__=='__main__':
