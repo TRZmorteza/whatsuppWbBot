@@ -50,13 +50,17 @@ sleep(10)
 chats = bot.find_elements(By.XPATH, X.chatPresent)
 
 while True:
+        users=[]
+        with open('users.txt','r')as user:
+            users = [line.strip() for line in user]
+
         wait = WebDriverWait(bot,60*60*60*5 , poll_frequency=0.5, ignored_exceptions=[Exception])
         trget = wait.until(EC.visibility_of_element_located((By.XPATH, X.unRead)))
         act.scroll_to_element(trget).perform()
        
         sleep()
         trget.click()
-        sleep(10)
+        sleep(5)
         try:
             gText = bot.find_elements(By.XPATH, X.groptxt)
             print('messages',len(gText))
@@ -71,27 +75,16 @@ while True:
             img = bot.find_elements(By.XPATH, X.imgs)
             print('img',len(img))
         except:
-            print('img....')
+            print('no img....')
 
        
 
         print('TRYING TO CLICK')
         sleep()
         name = bot.find_element(By.XPATH, X.chatName).text
-        if name=="mortezanoee":
-            try:
-                print('admin found')
-                textbBr=bot.find_element(By.XPATH,X.textBar)
-                textbBr.click()
-                
-                textbBr.send_keys('running......')
-                textbBr.send_keys(Keys.RETURN)
-                continue
-            except:
-                print('something went wrong admin')
-        F.make(name)
-        print('Looking at:', name)
-        if name != 'Whatsapp':
+
+
+        if name in user:
             try:
                 today = bot.find_element(By.XPATH, X.today)
                 act.scroll_to_element(today).perform()

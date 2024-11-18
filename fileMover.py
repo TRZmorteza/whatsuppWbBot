@@ -3,8 +3,8 @@ import os
 
 def direct():
     for i in range(0, 10):
-        open(f're{i}.png', 'w').close()
-
+        open(f're{i}.txt', 'w').close()
+    input()
     seek('test', 't_e_s_t')
 
 def make(name):
@@ -53,7 +53,7 @@ def isthere():
         for f in files:
             fname, ftp = os.path.splitext(f)
             perent = os.path.dirname(f)
-            if f == file:
+            if f == file and file!='users.txt':
                 name, _ = os.path.splitext(f)
                 counter = 0
                 while True:
@@ -83,8 +83,8 @@ def move(name, date):
     os.makedirs(secDes, exist_ok=True)
 
     for f in files:
-        _, Ftypes = os.path.splitext(f)
-        if Ftypes in ['.jpeg', '.jpg', '.txt','.png']:
+        name, Ftypes = os.path.splitext(f)
+        if Ftypes in ['.jpeg', '.jpg', '.txt','.png'] and not name=='users':
             shutil.copy(f, os.path.join(secDes, f))
             shutil.move(f, os.path.join(destination_dir, f))
 
