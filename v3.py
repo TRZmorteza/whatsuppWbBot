@@ -84,7 +84,7 @@ while True:
         name = bot.find_element(By.XPATH, X.chatName).text
 
 
-        if name in user:
+        if name in users:
             try:
                 today = bot.find_element(By.XPATH, X.today)
                 act.scroll_to_element(today).perform()
