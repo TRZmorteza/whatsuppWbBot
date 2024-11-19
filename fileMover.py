@@ -1,92 +1,123 @@
 import shutil
 import os
 
-def direct():
-    for i in range(0, 10):
-        open(f're{i}.txt', 'w').close()
-    input()
-    seek('test', 't_e_s_t')
 
+def direct():
+    # os.makedirs(B, exist_ok=True) 
+    
+    seek('test','t_e_s_t')
+
+def findDop(path=os.path.join(os.getcwd(),'tempRead')):    
+    files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    for f in files:
+       
+        if ')'in f:
+            os.remove(os.path.join(path, f))
+
+
+def reN(path,name):
+    files=[f for f in os.listdir(path) if os.path.isfile(os.path.join(path,f))]
+    for i,f in enumerate(files):
+        isNew,fileType=os.path.splitext(f)
+        
+        if fileType in ['.txt','.jpeg','.jpg']and isNew not in['new','result']:
+            os.rename(f,f"{name}_{i}{fileType}")
+
+B = r'C:\xampp\htdocs\whatsapp' 
 def make(name):
     destination_dir = os.path.join(B, name)
     if not os.path.isdir(destination_dir):
         os.makedirs(destination_dir, exist_ok=True)
-        print('new chat folder created...')
+        print('new chat folder created...') 
     else:
         print('folder for this chat already exists....')
 
-def seek(path, date):
-    imgRe(path)
-    move(path, date)
 
-def notToDay(date, fullDate):
-    os.makedirs('C:/xampp/htdocs/Watsapp/baygani/', exist_ok=True)
-    new_path = f'C:/xampp/htdocs/Watsapp/baygani/{fullDate}.txt'
-    os.rename('C:/xampp/htdocs/Watsapp/myfile.txt', new_path)
+
+
+
+def notToDay(date,fullDate):
+    os.makedirs('C:/xampp/htdocs/whatsapp/baygani/', exist_ok=True)
+    new_path=f'C:/xampp/htdocs/whatsapp/baygani/{fullDate}.txt'
+    os.rename('C:/xampp/htdocs/whatsapp/myfile.txt', new_path)
     return date
 
-def imgRe(name):
-    basefiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-    
-    for file in basefiles:
-        _, ftp = os.path.splitext(file)
-        counter = 0
-        if ftp in ['.jpeg', '.png', '.jpg']:
-            while True:
-                newname = f"{name}_{counter}{ftp}"
-                newname_path = os.path.join(os.getcwd(), newname)
-                if not os.path.exists(newname_path):
-                    os.rename(file, newname_path)
-                    break
-                counter += 1
 
-def isthere():
-    secDes = os.path.join(B, 'tempRead')
-    basefiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-    files = [f for f in os.listdir(secDes) if os.path.isfile(os.path.join(secDes, f))]
-    
-    if len(files) == 0:
-        print('no file')
-        return 'break'
-    
-    for file in basefiles:
-        for f in files:
-            fname, ftp = os.path.splitext(f)
-            perent = os.path.dirname(f)
-            if f == file and file!='users.txt':
-                name, _ = os.path.splitext(f)
-                counter = 0
-                while True:
-                    if len(name) > 2:
-                        newname = f'{name[:-1]}_{counter}{ftp}'
-                        if not os.path.exists(os.path.join(os.getcwd(), newname)) and not os.path.exists(os.path.join(secDes, newname)):
-                            os.rename(f, newname)
-                            return 'break'
-                    else:
-                        newname = name + '_' + str(counter) + ftp
-                        if not os.path.isdir(os.path.join(perent, newname)):
-                            if not os.path.exists(os.path.join(os.getcwd(), newname)) and not os.path.exists(os.path.join(secDes, newname)):
-                                os.rename(f, newname)
-                                return 'break'
-                    counter += 1
+def seek(name,date):
+    os.makedirs(B, exist_ok=True) 
+    os.makedirs(os.path.join(B,'tempRead'), exist_ok=True)     
+    os.makedirs(os.path.join(B,name,date), exist_ok=True) 
+    imgChatName(name)
+    chekAndRename()
 
-B = r'C:\xampp\htdocs\Watsapp'
-
-def move(name, date):
-    isthere()
 
     files = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-    secDes = os.path.join(B, 'tempRead')
-    destination_dir = os.path.join(B, name, date)
+    secDes=os.path.join(B,'tempRead')
+    # print(files)
+    destination_dir = os.path.join(B, name,date)
+    if not os.path.isdir(destination_dir) and not os.path.isdir(secDes):
+        os.makedirs(destination_dir, exist_ok=True)  
+        os.makedirs(os.path.join(B,'tempRead'), exist_ok=True)  
+        for f in (files):
+            name,Ftypes=os.path.splitext(f)       
+            chekAndRename(name)
+            if Ftypes in ['.jpeg', '.jpg','.txt'] and name!='users': 
+                shutil.copy(os.path.join(os.getcwd(), f),os.path.join(B,'tempRead', f))
+                shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))
+    else:          
+        for f in (files):
+            name,Ftypes=os.path.splitext(f)  
+          
+            if Ftypes in ['.jpeg', '.jpg','.txt'] and name!='users': 
+                shutil.copy(os.path.join(os.getcwd(),f'{name}{Ftypes}'),os.path.join(B,'tempRead', f))
+                shutil.move(os.path.join(os.getcwd(), f), os.path.join(destination_dir, f))
+def chekAndRename ():
+    oldfiles = [f for f in os.listdir('C:\\xampp\\htdocs\\whatsapp\\tempRead\\') if os.path.isfile(os.path.join('C:\\xampp\\htdocs\\whatsapp\\tempRead\\', f))]
+    newFiles= [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
+    
+    for old in oldfiles:
+       
+        count=0
+        oldName,_=os.path.splitext(old)
 
-    os.makedirs(destination_dir, exist_ok=True)
-    os.makedirs(secDes, exist_ok=True)
+        try:
+            for new in newFiles:
+                newName,type=os.path.splitext(new)
+                
+                if oldName==newName and type not in '.py' and oldName!='users':
+                    notHere=True
+                    i=0
+                    src =f'{oldName}{i}{type}'
+                    
+                    while   notHere:
+                        newFiles= [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
 
-    for f in files:
-        name, Ftypes = os.path.splitext(f)
-        if Ftypes in ['.jpeg', '.jpg', '.txt','.png'] and not name=='users':
-            shutil.copy(f, os.path.join(secDes, f))
-            shutil.move(f, os.path.join(destination_dir, f))
-
-if __name__ == '__main__':
+                        for new in newFiles:
+                            newName,type=os.path.splitext(new)
+                            
+                            if src==newName and type not in '.py':
+                                src =f'{oldName}{i}{type}'
+                                i+=1
+                        cfiles = [f for f in os.listdir('C:\\xampp\\htdocs\\whatsapp\\tempRead\\') if os.path.isfile(os.path.join('C:\\xampp\\htdocs\\whatsapp\\tempRead\\', f))]
+                        for c in cfiles:
+                            if src == c:
+                                pass
+                        
+                        os.rename(old,src)
+        except:
+            print('y')          
+      
+def imgChatName(chatName ):
+    oldfiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
+    toRename=[]
+    for file in oldfiles:
+        _,typ=os.path.splitext(file)
+        if typ in ['.jpeg','.png','.jpg']:
+            toRename.append(file)
+    for index,img in enumerate(toRename):
+        _,typ=os.path.splitext(img)
+        os.rename(img,f'{chatName}{index}{typ}')
+    print(toRename)
+     
+if __name__=='__main__':
     direct()
