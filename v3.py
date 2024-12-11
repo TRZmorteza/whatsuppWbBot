@@ -20,7 +20,7 @@ options.add_experimental_option("prefs", {
     "download.prompt_for_download": False,
     "download.directory_upgrade": True,
 })
-options.add_argument("user-data-dir=C:/Users/MortezaNoei/AppData/Local/Google/Chrome/User Data/selenium_chrome_profile")
+options.add_argument("user-data-dir=C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/seleniumprofile")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
@@ -76,6 +76,10 @@ while True:
             print('img',len(img))
         except:
             print('no img....')
+        try:
+            prel=bot.find_elements('')
+        except:
+
 
        
 
@@ -84,7 +88,7 @@ while True:
         name = bot.find_element(By.XPATH, X.chatName).text
 
 
-        if name in users:
+        if name in users or True:
             try:
                 today = bot.find_element(By.XPATH, X.today)
                 act.scroll_to_element(today).perform()

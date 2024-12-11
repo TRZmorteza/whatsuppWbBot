@@ -4,7 +4,7 @@ import os
 
 def direct():
     # os.makedirs(B, exist_ok=True) 
-    
+    # imgChatName('some name' )
     seek('test','t_e_s_t')
 
 def findDop(path=os.path.join(os.getcwd(),'tempRead')):    
@@ -45,7 +45,7 @@ def notToDay(date,fullDate):
 
 def seek(name,date):
     os.makedirs(B, exist_ok=True) 
-    os.makedirs(os.path.join(B,'tempRead'), exist_ok=True)     
+    os.makedirs(os.path.join(B,'tempRead'), exist_ok=True) 
     os.makedirs(os.path.join(B,name,date), exist_ok=True) 
     imgChatName(name)
     chekAndRename()

@@ -36,3 +36,5 @@ lenOfImgs="//p/span[contains(@class,'_alhf _ao3e')]"
 albumImg="//div[@role='application']//span[contains(text(),'unread')]//following::div[contains(@role,'row')]/div[@data-id[contains(.,'album')]]//div[contains(@style,'grid-area: 1 / 1 / 2 / 2;')]"
 today="//div[@role='application']//span[contains(text(),'unread')]"
 unRead="//div[contains(@role,'listitem')]//following::span[contains(@aria-label,'unread message')]"
+
+preLoad='//div[contains(@aria-label,"Open picture")]//button'
