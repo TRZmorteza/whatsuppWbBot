@@ -85,14 +85,13 @@ while True:
 
         if name in users or True:
             try:
-                today = bot.find_element(By.XPATH, X.today)
-                act.scroll_to_element(today).perform()
-                sleep(6)
+                # unread = bot.find_element(By.XPATH, X.unRead)
+                # act.scroll_to_element(unread).perform()
+                #texts
                 try:
-                    sleep()
                     print(len(gText))
                     if gText:
-                        filename = f"{name}_fromgGp.txt"
+                        filename = f"{name}.txt"
                         sleep()
                         
                         for index,i in enumerate(gText):
