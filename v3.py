@@ -128,7 +128,7 @@ while True:
                             sleep(10) 
                 except:
                     print('no download button')
-                    print('looking for album')
+                print('looking for album')
                 try:
                     album = bot.find_elements(By.XPATH, X.albumImg)
                     act.scroll_to_element(album[0]).perform()
