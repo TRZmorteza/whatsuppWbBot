@@ -91,7 +91,7 @@ while True:
                 try:
                     print(len(gText))
                     if gText:
-                        filename = f"{name}.txt"
+                        
                         sleep()
                         
                         for index,i in enumerate(gText):
@@ -105,7 +105,7 @@ while True:
                                 print('no read more..')
                             sleep()
                             text = i.text
-                            with open(filename, 'a', encoding='utf-8') as f:
+                            with open(f'{name}.txt', 'a', encoding='utf-8') as f:
                                 f.write(text + '\n')
                             
                         

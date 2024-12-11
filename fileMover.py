@@ -32,7 +32,6 @@ def seek(name ,date):
     os.makedirs(os.path.join(B,name,date), exist_ok=True) 
     newfiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
     oldfiles = [f for f in os.listdir(os.path.join(B, name,date)) if os.path.isfile(os.path.join(B, name,date, f))]
-    renamed=[]
     imgCounter=0
     for file in newfiles:
         _,fileType=os.path.splitext(file)
@@ -65,15 +64,21 @@ def seek(name ,date):
             if bigest[1]<int(name[1]):
                 bigest[1]=int(name[1])
         print(bigest[0],bigest[1])
-        newfiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
    
+    newfiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
     for files in newfiles:
         name,typ=os.path.splitext(files)
-        name=name.split('_')
-        if typ=='.jpg':
-            os.rename(files,f'{main}_{int(name[1])+int(bigest[0])}{typ}')
-        if typ=='.txt' and not name[0]== 'users':
-            os.rename(files,f'{main}_{int(name[1])+int(bigest[1])}{typ}')
+        print('name=',name)
+
+        if typ!='.py' and name not in ['Pipfile','pipfile.lock']:
+            name=name.split('_')
+            print('name=',name)
+            print('name=',name[1])
+            print()
+            if typ=='.jpg':
+                os.rename(files,f'{main}_{int(name[1])+int(bigest[0])}{typ}')
+            if typ=='.txt' and not name[0]== 'users':
+                os.rename(files,f'{main}_{int(name[1])+int(bigest[1])}{typ}')
     newfiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
     for f in newfiles:
             name,Ftypes=os.path.splitext(f)  
