@@ -90,7 +90,6 @@ while True:
                 sleep(6)
                 try:
                     sleep()
-                    
                     print(len(gText))
                     if gText:
                         filename = f"{name}_fromgGp.txt"
@@ -117,15 +116,17 @@ while True:
 
                 try:
                     preloads = bot.find_elements(By.XPATH, X.preLoad)
-                    for preload in preloads:
-                        act.scroll_to_element(preload).perform()
-                        sleep(6)
-                        
-                        print('looking for download icon')
-                        if preload:
-                            bot.execute_script("arguments[0].click();", preload)
-                            print('click on element')
-                            sleep(10) 
+# Check if the element is displayed
+                    if preload.is_displayed():
+                        for preload in preloads:
+                            act.scroll_to_element(preload).perform()
+                            sleep(6)
+                            
+                            print('looking for download icon')
+                            if preload:
+                                bot.execute_script("arguments[0].click();", preload)
+                                print('click on element')
+                                sleep(10) 
                 except:
                     print('no download button')
                 print('looking for album')
