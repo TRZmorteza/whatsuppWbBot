@@ -51,8 +51,8 @@ chats = bot.find_elements(By.XPATH, X.chatPresent)
 
 while True:
         users=[]
-        with open('users.txt','r')as user:
-            users = [line.strip() for line in user]
+        # with open('users.txt','r')as user:
+        #     users = [line.strip() for line in user]
 
         wait = WebDriverWait(bot,60*60*60*5 , poll_frequency=0.5, ignored_exceptions=[Exception])
         trget = wait.until(EC.visibility_of_element_located((By.XPATH, X.unRead)))
@@ -176,10 +176,9 @@ while True:
                     if img :
                         for i in img:
                             act.scroll_to_element(i).perform()
-                            sleep(5)
-                            bot.execute_script("arguments[0].click();", i)
                             sleep()
-                            db = bot.find_element(By.XPATH, X.downloadButton)
+                            bot.execute_script("arguments[0].click();", i)
+                            db=wait.until(EC.visibility_of_element_located((By.XPATH, X.downloadButton)))
                             bot.execute_script("arguments[0].click();", db)
                             sleep()
                             act.send_keys(Keys.ESCAPE).perform()
