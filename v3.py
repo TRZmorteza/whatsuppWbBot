@@ -76,12 +76,7 @@ while True:
             print('img',len(img))
         except:
             print('no img....')
-        try:
-            prel=bot.find_elements('')
-        except:
-
-
-       
+ 
 
         print('TRYING TO CLICK')
         sleep()
@@ -121,7 +116,7 @@ while True:
                
 
                 try:
-                    preloads = bot.find_elements(By.XPATH, X.downloadButtonLoad)
+                    preloads = bot.find_elements(By.XPATH, X.preLoad)
                     for preload in preloads:
                         act.scroll_to_element(preload).perform()
                         sleep(6)
