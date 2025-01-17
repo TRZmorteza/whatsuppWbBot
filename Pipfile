@@ -13,6 +13,7 @@ numpy = "*"
 webdriver-manager = "*"
 selenium = "*"
 easyocr = "*"
+ultralytics = "*"
 
 [dev-packages]
 
