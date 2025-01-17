@@ -1,95 +1,223 @@
 import shutil
 import os
+from datetime import datetime
+import http.client
+import json
+import re
+import cv2
+import traceback
+from ultralytics import YOLO
+model=YOLO('best.pt')
+img_end=['.jpg', '.jpeg']
+
+base_xamp_dir = r'C:\xampp\htdocs\whatsApp'
+base_xamp_temp=r'C:\xampp\htdocs\whatsApp\tempRead'
+base_xamp_temp_date=r'C:\xampp\htdocs\whatsApp\tempReadDate'
+
+def contains_table(img_base_path, img_name):
+    try:
+        img_path = os.path.join(img_base_path, img_name)
+        img = cv2.imread(img_path)
+
+        results = model(img_path)
+
+        # Check if there are any detected tables (class 0)
+        for box in results[0].boxes:
+            if box.cls == 0:  # Table class (class 0)
+                return True  # Found a table, return True
+
+        return False  # No table detected, return False
+    except Exception as e:
+         print('contains_tabels:',e)
+         traceback.print_exc()
 
 
-def direct():
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    # seek('test','t_e_s_t')
-    # for i in range(0,10):
-    #     open('hkhjkhkj.txt','w').close()
-    #     seek('name','t_e_s_t')
-    for i in range(0,5):
-        open(f"thing{i}.txt",'w').close()
-        open(f"thin{i}.jpg",'w').close()
-    # imgChatName('name','today')
-    seek('name','today')
+def model_cut_img(img_base_path, img_name):
+    try:
+        
+        # Process each image file
+        img_path = os.path.join(img_base_path, img_name)
+        img = cv2.imread(img_path)
 
-B = r'C:\\xampp\htdocs\whatsapp' 
-def make(name):
-    destination_dir = os.path.join(B, name)
-    if not os.path.isdir(destination_dir):
-        os.makedirs(destination_dir, exist_ok=True)
-        print('new chat folder created...') 
-    else:
-        print('folder for this chat already exists....')
+        results = model(img_path)
+        index = 1
+        output_paths = []  # List to hold paths of cropped images
+
+        for box in results[0].boxes:
+            if box.cls == 0:  
+                xmin, ymin, xmax, ymax = map(int, box.xyxy[0])  
+
+                cropped_table = img[ymin:ymax, xmin:xmax]
+                output_name, img_type = os.path.splitext(img_name)
+                output_path = f'cut_date___{datetime.now().hour}___{datetime.now().minute}___{datetime.now().second}___{output_name}{index}{img_type}'
+
+                # Save cropped image
+                cv2.imwrite(output_path, cropped_table)
+                output_paths.append(output_path)  # Store output paths
+                index += 1
+    except Exception as e:
+        print('model_cut_img:',e)
+        traceback.print_exc()
 
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-def seek(name ,date):
-    main=name
-    os.makedirs(B, exist_ok=True) 
-    os.makedirs(os.path.join(B,'tempRead'), exist_ok=True) 
-    os.makedirs(os.path.join(B,name,date), exist_ok=True) 
-    newfiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-    oldfiles = [f for f in os.listdir(os.path.join(B, name,date)) if os.path.isfile(os.path.join(B, name,date, f))]
-    imgCounter=0
-    for file in newfiles:
-        _,fileType=os.path.splitext(file)
-        if fileType == '.jpg':
-            imgCounter+=1
-            os.rename(file,f'a{name}_{imgCounter}{fileType}')
+def digit(text):
+    try:
+        # Regex to find the content between + and .
+        pattern = r'\+([^+]+)\.'  # Matches anything between + and .
+        
+        # Search for the pattern
+        match = re.search(pattern, text)
+        if match:
+            # Return the content between + and .
+            return int(match.group(1))
+        else:
+            return -1  # If no match is found
+    except Exception as e:
+        print('digit:',e)
+        traceback.print_exc()
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+def api_call(dir_name, date, file_name,cs):
+    try:
+        imgUrl = f'http://46.105.184.179/telegram/{dir_name}/{date}/{file_name}'
+        conn = http.client.HTTPSConnection("openl-translate.p.rapidapi.com")
+        headers = {
+            'x-rapidapi-key': '75333e0af4mshe2b8a14812fe4b5p18963cjsn55a9d4410cc4',
+            'x-rapidapi-host': 'openl-translate.p.rapidapi.com',
+            'Content-Type': 'application/json'
+        }
+
+        # Prepare payload with image URL
+        payload = f'{{"target_lang":"en","url":"{imgUrl}"}}'
+        print(imgUrl)
+
+        # Send the request
+        conn.request("POST", "/translate/image", payload.encode('utf-8'), headers)
+
+        # Get response
+        res = conn.getresponse()
+        data = res.read(), date, file_name  # Store the response, date, and filename as tuple
+
+        resName = f'ocr__{dir_name}___{date}___{cs}___{datetime.now().hour}___{datetime.now().minute}___{datetime.now().second}.txt'
+
+        # Process the response
+        if res.status == 200:
+            json_response = data[0].decode("utf-8")  # Decode the first element of the tuple (the response)
+            print("Response JSON:", json_response)
+
+            response_dict = json.loads(json_response)  # Parse the JSON
+            cleaned_response = response_dict.get("translatedText", "")
+
+            # Write the response to a file (for example, result.txt)
+            with open(resName, 'a', encoding='utf-8') as f:
+                f.write(cleaned_response)
+
+    except Exception as e:
+         print('api_call:',e)
+         traceback.print_exc()
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+def seek(dir_name, date):
+    try:
+        current_work_dir = os.path.join(base_xamp_dir, dir_name, date)
+        current_work_dir_temp_date=os.path.join(base_xamp_temp_date,date)
+        
+        os.makedirs(base_xamp_dir, exist_ok=True)
+        os.makedirs(base_xamp_temp, exist_ok=True)
+        os.makedirs(base_xamp_temp_date, exist_ok=True)
+        os.makedirs(current_work_dir, exist_ok=True)
+        os.makedirs(current_work_dir_temp_date, exist_ok=True)
+        
+        all_files = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
+        img_count = 0
+        txt_count = 0
+        biggest_number_img = 0
+        biggest_number_text = 0
+        img_to_ocr = []
+
+        if os.path.isdir(current_work_dir):
+            dir_files = [f for f in os.listdir(current_work_dir) if os.path.isfile(os.path.join(current_work_dir, f))]
             
-    textCounter=0
-    for file in newfiles:
-        _,fileType=os.path.splitext(file)
-        if fileType == '.txt' and not name[0]== 'users':
-            textCounter+=1
-            os.rename(file,f'a{name}_{textCounter}{fileType}')
-    # print(imgCounter,textCounter) 
-    bigest=[0,0]#0 img and 1 is txt   
-    for files in oldfiles:
-        #look for begest number
-        name,typ=os.path.splitext(files)
-        if typ=='.jpg':
-            print('looking for begest img')
-            name=name.split('_')
             
-            if bigest[0]<int(name[1]):
-                bigest[0]=int(name[1])
-            
-        if typ=='.txt' and not name[0]== 'users':
-            print('looking for begest text')
-            name=name.split('_')
-            
-            if bigest[1]<int(name[1]):
-                bigest[1]=int(name[1])
-        print(bigest[0],bigest[1])
-   
-    newfiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-    for files in newfiles:
-        name,typ=os.path.splitext(files)
-        print('name=',name)
+            for old_clrearnames in dir_files:
+                _, file_type = os.path.splitext(old_clrearnames)
+                if file_type in img_end:
+                    biggest_number_img += 1
+                    check = digit(old_clrearnames)
+                    if check > biggest_number_img:
+                        biggest_number_img = check
+                elif file_type == '.txt':
+                    biggest_number_text += 1
+                    check = digit(old_clrearnames)
+                    if check > biggest_number_text:
+                        biggest_number_text = check
+        if biggest_number_img:
+            img_count = biggest_number_img
+        if biggest_number_text:
+            txt_count = biggest_number_text
 
-        if typ!='.py' and name not in ['Pipfile','pipfile.lock']:
-            name=name.split('_')
-            print('name=',name)
-            print('name=',name[1])
-            print()
-            if typ=='.jpg':
-                os.rename(files,f'{main}_{int(name[1])+int(bigest[0])}{typ}')
-            if typ=='.txt' and not name[0]== 'users':
-                os.rename(files,f'{main}_{int(name[1])+int(bigest[1])}{typ}')
-    newfiles = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-    for f in newfiles:
-            name,Ftypes=os.path.splitext(f)  
-          
-            if Ftypes in ['.jpeg', '.jpg','.txt'] and name!='users': 
-                shutil.copy(os.path.join(os.getcwd(),f),os.path.join(B,'tempRead'))
-                shutil.move(os.path.join(os.getcwd(), f), os.path.join(B, main,date))    
+        for file in all_files:
+            _, file_ext = os.path.splitext(file)
+
+            if file_ext.lower() in img_end:
+                img_name = f'{date}_{dir_name}+{img_count}{file_ext}'
+                os.rename(file, img_name)
+                img_to_ocr.append(img_name)
+                img_count += 1
+                shutil.copy(img_name, os.path.join(current_work_dir, img_name))
+                shutil.copy(img_name, os.path.join(current_work_dir_temp_date, img_name))
+                shutil.move(img_name, os.path.join(base_xamp_temp, img_name))
+            elif file_ext.lower() == '.txt':
+                txt_name = f'{date}_{dir_name}+{txt_count}{file_ext}'
+                os.rename(file, txt_name)
+                shutil.copy(txt_name, os.path.join(base_xamp_temp, txt_name))
+                shutil.copy(txt_name, os.path.join(base_xamp_temp_date, txt_name))
+                shutil.move(txt_name, os.path.join(current_work_dir, txt_name))
+                txt_count += 1
+
+        # OCR part for original images
+        tables_exists=False
+
+        for imgs in img_to_ocr:
+            if contains_table(current_work_dir,imgs):
+                cropped_img=[]
+                model_cut_img(current_work_dir, imgs)
+                api_call(dir_name, date, imgs,'main')
+                tables_exists=True
+                if tables_exists:
+                    
+                    new_cuted_images = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
+                    for may_new_cut_image in new_cuted_images:
+                        _,file_type=os.path.splitext(may_new_cut_image)
+                        if file_type in img_end:
+                            cropped_img.append(may_new_cut_image)
+                    
+                    for cropped_img in cropped_img:
+                        shutil.copy(cropped_img, os.path.join(current_work_dir, cropped_img))  # Copy to the current working dir
+                        shutil.copy(cropped_img, os.path.join(current_work_dir_temp_date, cropped_img))  # Copy to the current working dir
+                        shutil.move(cropped_img, os.path.join(current_work_dir, cropped_img))  # Move to the current working dir
+                        api_call(dir_name, date, cropped_img,'cs')
+                    last_check = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
+                    for last_move_files in last_check:
+                        _,file_type=os.path.splitext(last_move_files)
+                        if file_type in  img_end or file_type=='.txt':
+                            shutil.copy(last_move_files, os.path.join(current_work_dir, last_move_files))  # Copy to the current working dir
+                            shutil.copy(last_move_files, os.path.join(current_work_dir_temp_date, last_move_files))  # Copy to the current working dir
+                            shutil.move(last_move_files, os.path.join(base_xamp_temp, last_move_files))
+            else:
+                continue
+        # After cutting images, handle cropped images
+    except Exception as e:
+        print('seek:',e)
+        traceback.print_exc()    
 
 
 
-    
 
-if __name__=='__main__':
-    direct()
+
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
