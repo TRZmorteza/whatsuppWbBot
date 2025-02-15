@@ -78,7 +78,16 @@ while True:
 
         
         try:
-            
+            try:
+                with open(f'{name}.txt','a',encoding='utf-8') as f:
+                    for i in gText:
+                        act.scroll_to_element(i).perform()
+                        if i.is_displayed():
+                            text=i.text
+                            f.write(text+'\n')
+
+            except Exception as e:
+                print('no message found')
                     
             
             
@@ -111,7 +120,7 @@ while True:
         
             
         F.seek(name, f"{date.today().year}_{date.today().month}_{date.today().day}")
-        
+        print(f"last look chat :{name}\nfind imgs:{len(img)}\nfind texts as line:{len(gText)}" )
         esc()
         #readd.readd(os.path.join(os.getcwd(),'tempRead'))
         # chats = bot.find_elements(By.XPATH, X.chatPresent)

@@ -161,8 +161,6 @@ def seek(dir_name, date):
                     result=Locr.strater(imgs)
 
                 
-                    os.system('cls')
-                    print(result,'from seek')
                     name,_=os.path.splitext(imgs)
 
                     with open(f"{name}.txt", "w", encoding="utf-8") as f:
