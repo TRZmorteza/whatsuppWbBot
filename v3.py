@@ -50,7 +50,7 @@ sleep(10)
 
 while True:
        
-
+        sleep()
         wait = WebDriverWait(bot,60*60*60*5 , poll_frequency=0.5, ignored_exceptions=[Exception])
         trget = wait.until(EC.visibility_of_element_located((By.XPATH, X.unRead)))
         act.scroll_to_element(trget).perform()
@@ -78,25 +78,9 @@ while True:
 
         
         try:
-            # unread = bot.find_element(By.XPATH, X.unRead)
-            # act.scroll_to_element(unread).perform()
-            #texts
-            try:
-                print(len(gText))
-                if gText:
+            
                     
-                    
-                    for index,i in enumerate(gText):
-                        act.move_to_element(i).perform()
-                        if i.is_displayed():
-                            sleep()
-                            text = i.text
-                            with open(f'{name}.txt', 'a', encoding='utf-8') as f:
-                                f.write(text + '\n')
-                        
-                    
-            except Exception as e:
-                print('no group text or error:', e)
+            
             
 
             

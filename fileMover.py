@@ -8,8 +8,9 @@ import re
 import cv2
 import traceback
 from ultralytics import YOLO
+import Locr
 model=YOLO('best.pt')
-img_end=['.jpg', '.jpeg']
+img_end=['.jpg', '.jpeg','.png']
 
 base_xamp_dir = r'C:\\xampp\\htdocs\\whatsapp\\'
 base_xamp_temp=r'C:\\xampp\\htdocs\\whatsapp\\tempRead'
@@ -83,44 +84,7 @@ def digit(text):
         traceback.print_exc()
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-def api_call(dir_name, date, file_name,cs):
-    try:
-        imgUrl = f'http://46.105.184.179/whatsapp/{dir_name}/{date}/{file_name}'
-        conn = http.client.HTTPSConnection("openl-translate.p.rapidapi.com")
-        headers = {
-            'x-rapidapi-key': '75333e0af4mshe2b8a14812fe4b5p18963cjsn55a9d4410cc4',
-            'x-rapidapi-host': 'openl-translate.p.rapidapi.com',
-            'Content-Type': 'application/json'
-        }
 
-        # Prepare payload with image URL
-        payload = f'{{"target_lang":"en","url":"{imgUrl}"}}'
-        print(imgUrl)
-
-        # Send the request
-        conn.request("POST", "/translate/image", payload.encode('utf-8'), headers)
-
-        # Get response
-        res = conn.getresponse()
-        data = res.read(), date, file_name  # Store the response, date, and filename as tuple
-
-        resName = f'ocr__{dir_name}___{date}___{cs}____{datetime.now().hour}____{datetime.now().minute}____{datetime.now().second}.txt'
-
-        # Process the response
-        if res.status == 200:
-            json_response = data[0].decode("utf-8")  # Decode the first element of the tuple (the response)
-            print("Response JSON:", json_response)
-
-            response_dict = json.loads(json_response)  # Parse the JSON
-            cleaned_response = response_dict.get("translatedText", "")
-
-            # Write the response to a file (for example, result.txt)
-            with open(resName, 'a', encoding='utf-8') as f:
-                f.write(cleaned_response)
-
-    except Exception as e:
-         print('api_call:',e)
-         traceback.print_exc()
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
@@ -170,7 +134,7 @@ def seek(dir_name, date):
             if file_ext.lower() in img_end:
                 img_name = f'{date}___{datetime.now().hour}_{datetime.now().minute}_{datetime.now().second}______{dir_name}!{img_count}{file_ext}'
                 os.rename(file, img_name)
-                img_to_ocr.append(img_name)
+                img_to_ocr.append(os.path.join(current_work_dir_temp_date, img_name))
                 img_count += 1
                 shutil.copy(img_name, os.path.join(current_work_dir, img_name))
                 shutil.copy(img_name, os.path.join(current_work_dir_temp_date, img_name))
@@ -191,27 +155,19 @@ def seek(dir_name, date):
                 tables_exists=True
                 if tables_exists:
 
-                    SERVER_URL = "http://45.156.187.58:5000/process_image_url"  # Local Flask server URL
+                    
 
                     # Read and encode the image
-                    send_url=os.path.join('http://46.105.184.179',url, date,imgs).replace('\\','/')
+                    result=Locr.strater(imgs)
 
                 
-                    # Prepare JSON payload
-                    json_payload = {
-                        "filename": "uploaded_image.jpg",  # Name for the uploaded file
-                        "image_url": send_url
-                    }
-
-                    # Send request to Flask server
-                    response = requests.post(SERVER_URL, json=json_payload)
+                    os.system('cls')
+                    print(result,'from seek')
                     name,_=os.path.splitext(imgs)
-                    data = response.json()  # Convert response to JSON
 
                     with open(f"{name}.txt", "w", encoding="utf-8") as f:
-                        if "text" in data:
-                            for text in data['text']:
-                                f.write(text )    
+                        for line in result:
+                            f.write(line)
 
                 last_check = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
                 for last_move_files in last_check:
@@ -220,10 +176,7 @@ def seek(dir_name, date):
                             shutil.copy(last_move_files, os.path.join(current_work_dir, last_move_files))  # Copy to the current working dir
                             shutil.copy(last_move_files, os.path.join(current_work_dir_temp_date, last_move_files))  # Copy to the current working dir
                             shutil.move(last_move_files, os.path.join(base_xamp_temp, last_move_files))
-            else:
-                os.remove( os.path.join(current_work_dir, imgs))  #remove the unwanted images
-                os.remove( os.path.join(current_work_dir_temp_date, imgs))  #remove the unwanted images
-                os.remove( os.path.join(current_work_dir, imgs))
+            
                 
         # After cutting images, handle cropped images
     except Exception as e:

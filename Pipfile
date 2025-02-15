@@ -12,8 +12,10 @@ opencv-python = "*"
 numpy = "*"
 webdriver-manager = "*"
 selenium = "*"
-easyocr = "*"
 ultralytics = "*"
+easyocr = "*"
+paddlepaddle = "*"
+paddleocr = "*"
 
 [dev-packages]
 
