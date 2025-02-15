@@ -2,6 +2,7 @@ import shutil
 import os
 from datetime import datetime
 import http.client
+import requests
 import json
 import re
 import cv2
@@ -10,10 +11,10 @@ from ultralytics import YOLO
 model=YOLO('best.pt')
 img_end=['.jpg', '.jpeg']
 
-base_xamp_dir = r'C:\xampp\htdocs\whatsApp'
-base_xamp_temp=r'C:\xampp\htdocs\whatsApp\tempRead'
-base_xamp_temp_date=r'C:\xampp\htdocs\whatsApp\tempReadDate'
-
+base_xamp_dir = r'C:\\xampp\\htdocs\\whatsapp\\'
+base_xamp_temp=r'C:\\xampp\\htdocs\\whatsapp\\tempRead'
+base_xamp_temp_date=r'C:\\xampp\\htdocs\\whatsapp\\tempReadDate'
+url='whatsapp/tempReadDate'
 def contains_table(img_base_path, img_name):
     try:
         img_path = os.path.join(img_base_path, img_name)
@@ -57,6 +58,7 @@ def model_cut_img(img_base_path, img_name):
                 cv2.imwrite(output_path, cropped_table)
                 output_paths.append(output_path)  # Store output paths
                 index += 1
+                
     except Exception as e:
         print('model_cut_img:',e)
         traceback.print_exc()
@@ -67,7 +69,7 @@ def model_cut_img(img_base_path, img_name):
 def digit(text):
     try:
         # Regex to find the content between + and .
-        pattern = r'\+([^+]+)\.'  # Matches anything between + and .
+        pattern = r'\!([\d]+)\.'  # Matches anything between + and .
         
         # Search for the pattern
         match = re.search(pattern, text)
@@ -83,7 +85,7 @@ def digit(text):
 
 def api_call(dir_name, date, file_name,cs):
     try:
-        imgUrl = f'http://46.105.184.179/telegram/{dir_name}/{date}/{file_name}'
+        imgUrl = f'http://46.105.184.179/whatsapp/{dir_name}/{date}/{file_name}'
         conn = http.client.HTTPSConnection("openl-translate.p.rapidapi.com")
         headers = {
             'x-rapidapi-key': '75333e0af4mshe2b8a14812fe4b5p18963cjsn55a9d4410cc4',
@@ -102,7 +104,7 @@ def api_call(dir_name, date, file_name,cs):
         res = conn.getresponse()
         data = res.read(), date, file_name  # Store the response, date, and filename as tuple
 
-        resName = f'ocr__{dir_name}___{date}___{cs}___{datetime.now().hour}___{datetime.now().minute}___{datetime.now().second}.txt'
+        resName = f'ocr__{dir_name}___{date}___{cs}____{datetime.now().hour}____{datetime.now().minute}____{datetime.now().second}.txt'
 
         # Process the response
         if res.status == 200:
@@ -124,6 +126,7 @@ def api_call(dir_name, date, file_name,cs):
 
 def seek(dir_name, date):
     try:
+        dir_name=dir_name.replace(' ','-')
         current_work_dir = os.path.join(base_xamp_dir, dir_name, date)
         current_work_dir_temp_date=os.path.join(base_xamp_temp_date,date)
         
@@ -165,7 +168,7 @@ def seek(dir_name, date):
             _, file_ext = os.path.splitext(file)
 
             if file_ext.lower() in img_end:
-                img_name = f'{date}_{dir_name}+{img_count}{file_ext}'
+                img_name = f'{date}___{datetime.now().hour}_{datetime.now().minute}_{datetime.now().second}______{dir_name}!{img_count}{file_ext}'
                 os.rename(file, img_name)
                 img_to_ocr.append(img_name)
                 img_count += 1
@@ -173,10 +176,10 @@ def seek(dir_name, date):
                 shutil.copy(img_name, os.path.join(current_work_dir_temp_date, img_name))
                 shutil.move(img_name, os.path.join(base_xamp_temp, img_name))
             elif file_ext.lower() == '.txt':
-                txt_name = f'{date}_{dir_name}+{txt_count}{file_ext}'
+                txt_name = f'{date}___{datetime.now().hour}_{datetime.now().minute}_{datetime.now().second}______t{dir_name}!{txt_count}{file_ext}'
                 os.rename(file, txt_name)
                 shutil.copy(txt_name, os.path.join(base_xamp_temp, txt_name))
-                shutil.copy(txt_name, os.path.join(base_xamp_temp_date, txt_name))
+                shutil.copy(txt_name, os.path.join(current_work_dir_temp_date, txt_name))
                 shutil.move(txt_name, os.path.join(current_work_dir, txt_name))
                 txt_count += 1
 
@@ -185,32 +188,43 @@ def seek(dir_name, date):
 
         for imgs in img_to_ocr:
             if contains_table(current_work_dir,imgs):
-                cropped_img=[]
-                model_cut_img(current_work_dir, imgs)
-                api_call(dir_name, date, imgs,'main')
                 tables_exists=True
                 if tables_exists:
-                    
-                    new_cuted_images = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-                    for may_new_cut_image in new_cuted_images:
-                        _,file_type=os.path.splitext(may_new_cut_image)
-                        if file_type in img_end:
-                            cropped_img.append(may_new_cut_image)
-                    
-                    for cropped_img in cropped_img:
-                        shutil.copy(cropped_img, os.path.join(current_work_dir, cropped_img))  # Copy to the current working dir
-                        shutil.copy(cropped_img, os.path.join(current_work_dir_temp_date, cropped_img))  # Copy to the current working dir
-                        shutil.move(cropped_img, os.path.join(current_work_dir, cropped_img))  # Move to the current working dir
-                        api_call(dir_name, date, cropped_img,'cs')
-                    last_check = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
-                    for last_move_files in last_check:
+
+                    SERVER_URL = "http://45.156.187.58:5000/process_image_url"  # Local Flask server URL
+
+                    # Read and encode the image
+                    send_url=os.path.join('http://46.105.184.179',url, date,imgs).replace('\\','/')
+
+                
+                    # Prepare JSON payload
+                    json_payload = {
+                        "filename": "uploaded_image.jpg",  # Name for the uploaded file
+                        "image_url": send_url
+                    }
+
+                    # Send request to Flask server
+                    response = requests.post(SERVER_URL, json=json_payload)
+                    name,_=os.path.splitext(imgs)
+                    data = response.json()  # Convert response to JSON
+
+                    with open(f"{name}.txt", "w", encoding="utf-8") as f:
+                        if "text" in data:
+                            for text in data['text']:
+                                f.write(text )    
+
+                last_check = [f for f in os.listdir(os.getcwd()) if os.path.isfile(os.path.join(os.getcwd(), f))]
+                for last_move_files in last_check:
                         _,file_type=os.path.splitext(last_move_files)
                         if file_type in  img_end or file_type=='.txt':
                             shutil.copy(last_move_files, os.path.join(current_work_dir, last_move_files))  # Copy to the current working dir
                             shutil.copy(last_move_files, os.path.join(current_work_dir_temp_date, last_move_files))  # Copy to the current working dir
                             shutil.move(last_move_files, os.path.join(base_xamp_temp, last_move_files))
             else:
-                continue
+                os.remove( os.path.join(current_work_dir, imgs))  #remove the unwanted images
+                os.remove( os.path.join(current_work_dir_temp_date, imgs))  #remove the unwanted images
+                os.remove( os.path.join(current_work_dir, imgs))
+                
         # After cutting images, handle cropped images
     except Exception as e:
         print('seek:',e)
@@ -221,3 +235,5 @@ def seek(dir_name, date):
 
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+if __name__=="__main__":
+    seek('ls', '2025_2_12')

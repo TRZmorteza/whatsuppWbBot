@@ -3,13 +3,13 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import os
-if os.path.isdir('C:/Users/MortezaNoei/AppData/Local/Google/Chrome/User Data/selenium_chrome_profile'):
+if os.path.isdir('C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/seleniumprofile_wt'):
     pass
 else:
-    os.makedirs(r'C:/Users/MortezaNoei/AppData/Local/Google/Chrome/User Data/selenium_chrome_profile', exist_ok=True)
+    os.makedirs(r'C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/seleniumprofile_wt', exist_ok=True)
 try:
     chrome_options = Options()
-    chrome_options.add_argument("user-data-dir=C:/Users/MortezaNoei/AppData/Local/Google/Chrome/User Data/selenium_chrome_profile")
+    chrome_options.add_argument("user-data-dir=C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/seleniumprofile_wt")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--remote-debugging-port=9222")

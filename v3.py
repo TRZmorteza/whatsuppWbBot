@@ -20,7 +20,7 @@ options.add_experimental_option("prefs", {
     "download.prompt_for_download": False,
     "download.directory_upgrade": True,
 })
-options.add_argument("user-data-dir=C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/seleniumprofile")
+options.add_argument("user-data-dir=C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/seleniumprofile_wt")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
@@ -47,12 +47,9 @@ bot.get('https://web.whatsapp.com')
 sleep(10)
 
 # Find chat elements
-chats = bot.find_elements(By.XPATH, X.chatPresent)
 
 while True:
-        users=[]
-        # with open('users.txt','r')as user:
-        #     users = [line.strip() for line in user]
+       
 
         wait = WebDriverWait(bot,60*60*60*5 , poll_frequency=0.5, ignored_exceptions=[Exception])
         trget = wait.until(EC.visibility_of_element_located((By.XPATH, X.unRead)))
@@ -62,17 +59,13 @@ while True:
         trget.click()
         sleep(5)
         try:
-            gText = bot.find_elements(By.XPATH, X.groptxt)
+            gText = bot.find_elements(By.XPATH, X.unread_texts)
             print('messages',len(gText))
         except:
             print('no message....')
+      
         try:
-            album = bot.find_elements(By.XPATH, X.albumImg)
-            print('album',len(album))
-        except:
-            print('no album....')
-        try:
-            img = bot.find_elements(By.XPATH, X.imgs)
+            img = bot.find_elements(By.XPATH, X.unread_imgs)
             print('img',len(img))
         except:
             print('no img....')
@@ -80,123 +73,58 @@ while True:
 
         print('TRYING TO CLICK')
         sleep()
-        name = bot.find_element(By.XPATH, X.chatName).text
+        name = bot.find_element(By.XPATH, X.chatname).text
 
 
-        if name in users or True:
+        
+        try:
+            # unread = bot.find_element(By.XPATH, X.unRead)
+            # act.scroll_to_element(unread).perform()
+            #texts
             try:
-                # unread = bot.find_element(By.XPATH, X.unRead)
-                # act.scroll_to_element(unread).perform()
-                #texts
-                try:
-                    print(len(gText))
-                    if gText:
-                        
-                        sleep()
-                        
-                        for index,i in enumerate(gText):
-                            act.move_to_element(i).perform()
-                            try:
-                                readMores=bot.find_element(By.XPATH,X.readmore)
-                                act.scroll_to_element(readMores).perform()
-
-                                bot.execute_script("arguments[0].click();", readMores)
-                            except:
-                                print('no read more..')
+                print(len(gText))
+                if gText:
+                    
+                    
+                    for index,i in enumerate(gText):
+                        act.move_to_element(i).perform()
+                        if i.is_displayed():
                             sleep()
                             text = i.text
                             with open(f'{name}.txt', 'a', encoding='utf-8') as f:
                                 f.write(text + '\n')
-                            
                         
-                except Exception as e:
-                    print('no group text or error:', e)
-               
-
-                try:
-                    preloads = bot.find_elements(By.XPATH, X.preLoad)
-# Check if the element is displayed
-                    if preload.is_displayed():
-                        for preload in preloads:
-                            act.scroll_to_element(preload).perform()
-                            sleep(6)
-                            
-                            print('looking for download icon')
-                            if preload:
-                                bot.execute_script("arguments[0].click();", preload)
-                                print('click on element')
-                                sleep(10) 
-                except:
-                    print('no download button')
-                print('looking for album')
-                try:
-                    album = bot.find_elements(By.XPATH, X.albumImg)
-                    act.scroll_to_element(album[0]).perform()
-                    sleep(6)
-                    print('album found:', len(album))
                     
-                    if album:    
-                        for i in album:
-                            print('trying to click')
-                            act.move_to_element(i).perform()
-                            sleep(5)
-                            i.click()
-                            sleep(5)
-                            lenOfAlbum = bot.find_element(By.XPATH, X.lenOfImgs).text
-                            le = extract_number(lenOfAlbum)
-                            if le != -1:
-                                nextBn = bot.find_element(By.XPATH, X.nextButton)
-                                menuBn = bot.find_element(By.XPATH, X.downloadMenu)
+            except Exception as e:
+                print('no group text or error:', e)
+            
 
-                                for i in range(0, le+1):
-                                    sleep(5)
-                                    bot.execute_script("arguments[0].click();", menuBn)
-                                    sleep()
-                                    try:
-                                        dtap = bot.find_element(By.XPATH, X.downloadTab)
-                                        bot.execute_script("arguments[0].click();", dtap)
-                                    except:
-                                        db = bot.find_element(By.XPATH, X.downloadButton)
-                                        bot.execute_script("arguments[0].click();", db)
-                                    sleep()
-                                    bot.execute_script("arguments[0].click();", nextBn)
-                            else:
-                                print('no valid album find')
-                            sleep()
-                            act.send_keys(Keys.ESCAPE).perform()
-                            sleep(5)
+            
 
-                except Exception as e:
-                    print('no album img or error:', e)    
-
-                print('looking for all single imgs')
-                try:
-                    
-                    if img :
-                        for i in img:
-                            act.scroll_to_element(i).perform()
-                            sleep()
+            print('looking for all single imgs')
+            try:
+                
+                if img :
+                    for i in img:
+                        act.scroll_to_element(i).perform()
+                        if i.is_displayed():
                             bot.execute_script("arguments[0].click();", i)
-                            db=wait.until(EC.visibility_of_element_located((By.XPATH, X.downloadButton)))
+                            db=wait.until(EC.visibility_of_element_located((By.XPATH, X.download_button)))
                             bot.execute_script("arguments[0].click();", db)
                             sleep()
                             act.send_keys(Keys.ESCAPE).perform()
                             sleep()
 
-                except:
-                    print('no download button')
-                print('looking for group messages')
-                
-                
-            except: 
-                print('no message found')
+            except:
+                print('no download button')
+            print('looking for group messages')
+            
+            
+        except: 
+            print('no message found')
 
-        else:
-            print('skipping WhatsApp')
-        if todayDate==date.today().day:
-            pass
-        else:
-            todayDate=F.notToDay(date.today().day,f"{date.today().year}-{date.today().month}-{date.today().day}")
+      
+        
             
         F.seek(name, f"{date.today().year}_{date.today().month}_{date.today().day}")
         
