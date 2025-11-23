@@ -2,7 +2,7 @@ unreadfollow="//div[contains(@class,'focusable-list-item')]//span[contains(text(
 img="//img[@draggable='true'][contains(@src,'blob:https://web')]"
 txt="//span[contains(@class,'selectable-text copyable-text')]//span"
 
-
+img_load_bt="//div[@role='button']//span[contains(text(),'kB')]"
 
 escape_button="//button[contains(@role,'button')][contains(@title,'Close')]"
 download_button="//button[contains(@role,'button')][contains(@title,'Download')]"

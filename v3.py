@@ -65,6 +65,7 @@ while True:
             print('no message....')
       
         try:
+            imgs_to_load=bot.find_elements(By.XPATH, X.img_load_bt)
             img = bot.find_elements(By.XPATH, X.unread_imgs)
             print('img',len(img))
         except:
