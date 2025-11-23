@@ -120,7 +120,11 @@ while True:
         
             
         F.seek(name, f"{date.today().year}_{date.today().month}_{date.today().day}")
-        print(f"last look chat :{name}\nfind imgs:{len(img)}\nfind texts as line:{len(gText)}" )
+        print(f"last look chat :{name}", end="")
+        if img:
+            print(f"find imgs:{len(img)}", end="" )
+        # if gText:
+        #     print(f"find texts as line:{len(gText)}")
         esc()
         #readd.readd(os.path.join(os.getcwd(),'tempRead'))
         # chats = bot.find_elements(By.XPATH, X.chatPresent)
