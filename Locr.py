@@ -7,7 +7,7 @@ from paddleocr import PaddleOCR  # Import PaddleOCR
 model = YOLO('best.pt')
 
 # Initialize PaddleOCR model for Persian and English languages
-ocr_model = PaddleOCR(use_angle_cls=True, lang='en',use_gpu=False)  # 'fa' for Persian, 'en' is default
+ocr_model = PaddleOCR(use_angle_cls=True, lang='en')  # 'fa' for Persian, 'en' is default
 
 def contains_table(img_base_path):
     try:

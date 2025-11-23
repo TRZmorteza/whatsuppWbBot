@@ -1,6 +1,6 @@
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+# from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -20,6 +20,12 @@ options.add_experimental_option("prefs", {
     "download.prompt_for_download": False,
     "download.directory_upgrade": True,
 })
+profile_path = "C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/seleniumprofile_wt"
+
+# --- Fail-safe folder creation ---
+os.makedirs(profile_path, exist_ok=True)
+
+
 options.add_argument("user-data-dir=C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/seleniumprofile_wt")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
@@ -40,104 +46,107 @@ def sleep(s=3):
 def esc():
     act.send_keys(Keys.ESCAPE).perform()
 
-bot = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+# bot = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+bot = webdriver.Chrome( options=options)
 act = ActionChains(bot)
 bot.get('https://web.whatsapp.com')
 
 sleep(10)
-
+line='='*10
 # Find chat elements
-
+print(line,'running',line)
 while True:
-       
-        sleep()
-        wait = WebDriverWait(bot,60*60*60*5 , poll_frequency=0.5, ignored_exceptions=[Exception])
-        trget = wait.until(EC.visibility_of_element_located((By.XPATH, X.unRead)))
-        act.scroll_to_element(trget).perform()
-       
-        sleep()
-        trget.click()
-        sleep(5)
+    input()
+    sleep()
+    wait = WebDriverWait(bot,60*60*60*5 , poll_frequency=0.5, ignored_exceptions=[Exception])
+    trget = wait.until(EC.visibility_of_element_located((By.XPATH, X.unRead)))
+    act.scroll_to_element(trget).perform()
+    
+    sleep()
+    trget.click()
+    sleep(5)
+    try:
+        gText = bot.find_elements(By.XPATH, X.unread_texts)
+        print('messages',len(gText))
+    except:
+        print('no message....')
+    
+    try:
+        imgs_to_load=bot.find_elements(By.XPATH, X.img_load_bt)
+        for i in imgs_to_load:
+            print(f'image number {i}')
+            act.scroll_to_element(trget).perform()
+            sleep()
+            act.click(i).perform()
+    
+        img = bot.find_elements(By.XPATH, X.unread_imgs)
+        print('img',len(img))
+    except:
+        print('need loading img....')
+    try:
+    
+        img = bot.find_elements(By.XPATH, X.unread_imgs)
+        print('img',len(img))
+    except:
+        print('no img....')
+
+
+    print('TRYING TO CLICK')
+    sleep()
+    name = bot.find_element(By.XPATH, X.chatname).text
+
+
+    
+    try:
         try:
-            gText = bot.find_elements(By.XPATH, X.unread_texts)
-            print('messages',len(gText))
-        except:
-            print('no message....')
-      
-        try:
-            imgs_to_load=bot.find_elements(By.XPATH, X.img_load_bt)
-            for i in imgs_to_load:
-                act.scroll_to_element(trget).perform()
-                sleep()
-                act.click(i).perform()
-       
-            img = bot.find_elements(By.XPATH, X.unread_imgs)
-            print('img',len(img))
-        except:
-            print('need loading img....')
-        try:
-       
-            img = bot.find_elements(By.XPATH, X.unread_imgs)
-            print('img',len(img))
-        except:
-            print('no img....')
- 
+            with open(f'{name}.txt','a',encoding='utf-8') as f:
+                for i in gText:
+                    print('i is:',i,'\nand the text funtion is:',i.text)
+                    act.scroll_to_element(i).perform()
+                    if i.is_displayed():
+                        text=i.text
+                        f.write(text+'\n')
 
-        print('TRYING TO CLICK')
-        sleep()
-        name = bot.find_element(By.XPATH, X.chatname).text
-
-
-        
-        try:
-            try:
-                with open(f'{name}.txt','a',encoding='utf-8') as f:
-                    for i in gText:
-                        act.scroll_to_element(i).perform()
-                        if i.is_displayed():
-                            text=i.text
-                            f.write(text+'\n')
-
-            except Exception as e:
-                print('no message found')
-                    
-            
-            
-
-            
-
-            print('looking for all single imgs')
-            try:
-                
-                if img :
-                    for i in img:
-                        act.scroll_to_element(i).perform()
-                        if i.is_displayed():
-                            bot.execute_script("arguments[0].click();", i)
-                            db=wait.until(EC.visibility_of_element_located((By.XPATH, X.download_button)))
-                            bot.execute_script("arguments[0].click();", db)
-                            sleep()
-                            act.send_keys(Keys.ESCAPE).perform()
-                            sleep()
-
-            except:
-                print('no download button')
-            print('looking for group messages')
-            
-            
-        except: 
+        except Exception as e:
             print('no message found')
-
-      
+                
         
+        
+
+        
+
+        print('looking for all single imgs')
+        try:
             
-        F.seek(name, f"{date.today().year}_{date.today().month}_{date.today().day}")
-        print(f"last look chat :{name}", end="")
-        if img:
-            print(f"find imgs:{len(img)}", end="" )
-        # if gText:
-        #     print(f"find texts as line:{len(gText)}")
-        esc()
-        #readd.readd(os.path.join(os.getcwd(),'tempRead'))
-        # chats = bot.find_elements(By.XPATH, X.chatPresent)
-       
+            if img :
+                for i in img:
+                    act.scroll_to_element(i).perform()
+                    if i.is_displayed():
+                        bot.execute_script("arguments[0].click();", i)
+                        db=wait.until(EC.visibility_of_element_located((By.XPATH, X.download_button)))
+                        bot.execute_script("arguments[0].click();", db)
+                        sleep()
+                        act.send_keys(Keys.ESCAPE).perform()
+                        sleep()
+
+        except:
+            print('no download button')
+        print('looking for group messages')
+        
+        
+    except: 
+        print('no message found')
+
+    
+    
+        
+    F.seek(name, f"{date.today().year}_{date.today().month}_{date.today().day}")
+    print(f"last look chat :{name}", end="")
+    if img:
+        print(f"find imgs:{len(img)}", end="" )
+    # if gText:
+    #     print(f"find texts as line:{len(gText)}")
+    esc()
+    #readd.readd(os.path.join(os.getcwd(),'tempRead'))
+    # chats = bot.find_elements(By.XPATH, X.chatPresent)
+    
